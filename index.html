@@ -1384,14 +1384,14 @@
       const trimmedQuery = query.trim();
       const canSuggest = trimmedQuery.length >= 3;
 
-      const suggestions = useMemo(() => {
+const suggestions = useMemo(() => {
         if (!canSuggest) return [];
         const q = trimmedQuery.toLowerCase();
         return kaders.filter(
           (k) =>
-            k.nama.toLowerCase().includes(q) ||
-            (k.kodeKader || '').toLowerCase().includes(q) ||
-            (k.dpcNama || '').toLowerCase().includes(q)
+            String(k.nama || '').toLowerCase().includes(q) ||
+            String(k.kodeKader || '').toLowerCase().includes(q) ||
+            String(k.dpcNama || '').toLowerCase().includes(q)
         );
       }, [kaders, trimmedQuery, canSuggest]);
 
