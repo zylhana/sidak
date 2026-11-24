@@ -2251,67 +2251,89 @@
         picId: '',
       });
 
-      const handleSyncFromSikadRepo = async (e) => {
-        e.preventDefault();
-        setIsSyncingSikad(true);
-        let importedKaders = null;
+const handleSyncFromSikadRepo = async (e) => {
+  e.preventDefault();
+  setIsSyncingSikad(true);
 
-        try {
-          if (sikadForm.rawJsonUrl.trim().startsWith('http')) {
-            const res = await fetch(sikadForm.rawJsonUrl.trim());
-            if (res.ok) {
-              const json = await res.json();
-              const list = Array.isArray(json) ? json : json.kaders || json.data || [];
-              if (list.length > 0) {
-                importedKaders = list.map((item, idx) => ({
-                  id: item.id || `kdr-sikad-${idx + 1}`,
-                  kodeKader:
-                    item.kodeKader || item.nbm || `SKD-${String(idx + 1).padStart(3, '0')}`,
-                  nama: item.nama || item.nama_kader || item.name,
-                  noWa: item.noWa || item.no_wa || item.phone || '-',
-                  dpcId: item.dpcId || 'dpc-1',
-                  dpcNama: item.dpcNama || item.dpc || 'DPC Terdaftar',
-                  sumber: 'GitHub SIKAD',
-                }));
-              }
-            }
-          }
-        } catch (err) {
-          // Fallback simulasi jika repositori bersifat privat
-        }
+  try {
+    const url = sikadForm.rawJsonUrl.trim();
+    if (!url.startsWith('http')) {
+      throw new Error('URL JSON tidak valid. Harus diawali https://');
+    }
 
-        const updatedKaders = importedKaders || [
-          ...data.kaders,
-          ...(data.kaders.some((k) => k.kodeKader === 'SKD-009')
-            ? []
-            : [
-                {
-                  id: 'kdr-9',
-                  kodeKader: 'SKD-009',
-                  nama: 'Fathurrahman Al-Mandari',
-                  noWa: '6281234567809',
-                  dpcId: 'dpc-1',
-                  dpcNama: 'DPC Pasangkayu',
-                  sumber: 'GitHub SIKAD',
-                },
-              ]),
-        ];
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) {
+      throw new Error(`Gagal mengakses GitHub (HTTP ${res.status}). Pastikan repositori bersifat Public dan URL Raw benar.`);
+    }
 
-        onUpdateData({
-          ...data,
-          sikadConfig: {
-            ...sikadForm,
-            lastSynced: 'Baru saja (23 Nov 2026)',
-          },
-          kaders: updatedKaders,
-        });
+    const json = await res.json();
+    const list = Array.isArray(json) ? json : json.kaders || json.data || [];
 
-        setIsSyncingSikad(false);
-        setSikadModalOpen(false);
-        showToast(
-          `Direktori Kader berhasil disinkronkan dari repositori GitHub "${sikadForm.repoName}" (${updatedKaders.length} Kader).`
+    // 1. Saring hanya baris dengan tipe_data === "kader"
+    const kaderRows = list.filter(
+      (item) => item && item.tipe_data === 'kader' && item.payload
+    );
+
+    if (kaderRows.length === 0) {
+      throw new Error('Tidak ditemukan data dengan "tipe_data": "kader" di dalam backup.json.');
+    }
+
+    // 2. Petakan properti di dalam "payload" ke format SIDAK
+    const importedKaders = kaderRows
+      .map((item, idx) => {
+        const p = item.payload || {};
+        // Normalisasi nomor WA 08xx menjadi 628xx agar link wa.me langsung berfungsi
+        const rawWa = String(p.no_whatsapp || '').replace(/[^0-9]/g, '');
+        const normalizedWa = rawWa.startsWith('0') ? `62${rawWa.slice(1)}` : rawWa || '-';
+
+        // Cocokkan nama DPC dari SIKAD dengan master DPC di SIDAK (jika ada)
+        const dpcNameStr = String(p.dpc || 'DPC Terdaftar').trim();
+        const matchedDpc = data.dpcs.find(
+          (d) => d.namaDpc.toLowerCase() === dpcNameStr.toLowerCase()
         );
-      };
+
+        return {
+          id: item.id || `kdr-sikad-${idx + 1}`,
+          kodeKader: String(p.id_kader || item.id || `SKD-${String(idx + 1).padStart(3, '0')}`),
+          nama: String(p.nama_lengkap || '').trim(),
+          noWa: normalizedWa,
+          dpcId: matchedDpc ? matchedDpc.id : 'dpc-1',
+          dpcNama: dpcNameStr,
+          marhalah: String(p.marhalah || '-'),
+          jenisKelamin: String(p.jenis_kelamin || '-'),
+          statusKader: String(p.status || 'Aktif'),
+          sumber: 'GitHub SIKAD',
+        };
+      })
+      .filter((k) => k.nama !== '');
+
+    const waktuSekarang = new Date().toLocaleString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    onUpdateData({
+      ...data,
+      sikadConfig: {
+        ...sikadForm,
+        lastSynced: `${waktuSekarang} WITA`,
+      },
+      kaders: importedKaders,
+    });
+
+    setSikadModalOpen(false);
+    showToast(
+      `Berhasil menarik ${importedKaders.length} Direktori Kader dari backup.json SIKAD!`
+    );
+  } catch (err) {
+    alert(`Gagal Sinkronisasi: ${err.message}`);
+  } finally {
+    setIsSyncingSikad(false);
+  }
+};
 
       const openAddSahabat = () => {
         setEditingSahabat(null);
