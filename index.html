@@ -5393,3 +5393,629 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       closeKhutbahFormModal();
       refreshAllViews();
     }
+
+    async function deleteRecordFromSupabase(recordId) {
+      if (!sidakSupabaseClient || !recordId) return;
+      try {
+        await sidakSupabaseClient
+          .from(SIDAK_SUPABASE_TABLE)
+          .delete()
+          .eq('id', recordId);
+      } catch (err) {
+        console.warn('Gagal menghapus baris di Supabase SIDAK:', err);
+      }
+    }
+
+    function confirmDeleteKhutbah(id) {
+      openConfirmModal({
+        title: 'Hapus Jadwal Khutbah Jumat',
+        message: 'Apakah Anda yakin ingin menghapus jadwal khutbah Jumat ini?',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+          khutbahJumatList = khutbahJumatList.filter(k => k.id !== id);
+          await deleteRecordFromSupabase(id);
+          await persistAndDualSync();
+          refreshAllViews();
+          showToast('Jadwal khutbah Jumat dihapus.', 'success');
+        }
+      });
+    }
+
+    // --- Import Massal & Ekspor Excel Jadwal Khutbah Jumat ---
+    function openKhutbahBulkModal() {
+      khutbahBulkParsedRows = [];
+      document.getElementById('khutbah-bulk-file-input').value = '';
+      document.getElementById('khutbah-bulk-file-label').textContent = 'Pilih File Excel (.xlsx)';
+      document.getElementById('khutbah-bulk-preview-box').classList.add('hidden');
+      document.getElementById('btn-execute-khutbah-bulk').disabled = true;
+      document.getElementById('modal-khutbah-bulk').classList.remove('hidden');
+    }
+
+    function closeKhutbahBulkModal() {
+      document.getElementById('modal-khutbah-bulk').classList.add('hidden');
+    }
+
+    function downloadKhutbahExcelTemplate() {
+      if (typeof window.XLSX === 'undefined') {
+        showToast('Library Excel belum siap.', 'error');
+        return;
+      }
+      const sampleMasjid = masjidBinaanList[0] || {
+        nama_masjid: 'Masjid Al-Muhajirin Pasangkayu',
+        wilayah_dpc: 'DPC Pasangkayu',
+        alamat: 'Jl. Ir. Soekarno, Kel. Pasangkayu',
+        gmaps: 'https://maps.google.com/?q=Pasangkayu'
+      };
+
+      const wb = XLSX.utils.book_new();
+      const sampleRows = [{
+        'Nama Masjid': sampleMasjid.nama_masjid,
+        'Wilayah DPC': sampleMasjid.wilayah_dpc,
+        'Tanggal Jumat (YYYY-MM-DD)': CURRENT_WEEK_FRIDAY_ISO,
+        'Nama Khatib Terjadwal': 'Ust. Irfan Hakim, S.Sos.I.',
+        'Khatib Pengganti': 'Ust. Muhammad Yusuf, S.Pd.I.',
+        'Alamat Masjid': sampleMasjid.alamat,
+        'Link GMaps': sampleMasjid.gmaps || ''
+      }];
+      const ws = XLSX.utils.json_to_sheet(sampleRows);
+      ws['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 24 }, { wch: 28 }, { wch: 26 }, { wch: 32 }, { wch: 28 }];
+      XLSX.utils.book_append_sheet(wb, ws, 'Template_Khutbah_Jumat');
+
+      const refMasjid = masjidBinaanList.map(m => ({
+        'Nama Masjid Binaan': m.nama_masjid,
+        'Wilayah DPC': m.wilayah_dpc,
+        'Alamat': m.alamat,
+        'GMaps': m.gmaps || '-'
+      }));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(refMasjid), 'Referensi_Masjid_Binaan');
+
+      XLSX.writeFile(wb, 'Template_Jadwal_Khutbah_Jumat_SIDAK.xlsx');
+      showToast('Template Excel Khutbah Jumat berhasil diunduh.', 'success');
+    }
+
+    function parseFlexibleExcelDate(rawVal) {
+      if (!rawVal && rawVal !== 0) return '';
+      if (typeof rawVal === 'number' && window.XLSX && XLSX.SSF) {
+        const d = XLSX.SSF.parse_date_code(rawVal);
+        if (d && d.y && d.m && d.d) {
+          return `${String(d.y).padStart(4, '0')}-${String(d.m).padStart(2, '0')}-${String(d.d).padStart(2, '0')}`;
+        }
+      }
+      const str = String(rawVal).trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+      if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+      return '';
+    }
+
+    function handleKhutbahBulkFileChange(event) {
+      const file = event.target?.files?.[0];
+      if (!file || typeof window.XLSX === 'undefined') return;
+      document.getElementById('khutbah-bulk-file-label').textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+          const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+
+          const getCol = (row, ...names) => {
+            const keys = Object.keys(row);
+            for (const n of names) {
+              const found = keys.find(k => k.trim().toLowerCase() === n.toLowerCase());
+              if (found !== undefined) return row[found];
+            }
+            return '';
+          };
+
+          khutbahBulkParsedRows = rows.map((row, idx) => {
+            const namaMasjidRaw = String(getCol(row, 'Nama Masjid', 'Masjid') || '').trim();
+            const dpcRaw = String(getCol(row, 'Wilayah DPC', 'DPC') || '').trim();
+            const tanggalParsed = parseFlexibleExcelDate(getCol(row, 'Tanggal Jumat (YYYY-MM-DD)', 'Tanggal Jumat', 'Tanggal'));
+            const khatibUtama = String(getCol(row, 'Nama Khatib Terjadwal', 'Khatib Terjadwal', 'Khatib') || '').trim();
+            const khatibPengganti = String(getCol(row, 'Khatib Pengganti', 'Pengganti') || '').trim();
+            const alamatRaw = String(getCol(row, 'Alamat Masjid', 'Alamat') || '').trim();
+            const gmapsRaw = String(getCol(row, 'Link GMaps', 'GMaps') || '').trim();
+
+            const matchedMasjid = masjidBinaanList.find(
+              m => m.nama_masjid.toLowerCase() === namaMasjidRaw.toLowerCase()
+            );
+
+            const fridayIso = tanggalParsed ? getFridayOfWeek(new Date(tanggalParsed + 'T00:00:00')) : '';
+            const valid = Boolean(namaMasjidRaw && fridayIso && khatibUtama);
+
+            const payload = {
+              id: 'KHT-' + Date.now().toString(36).toUpperCase() + '-' + idx,
+              masjid_id: matchedMasjid ? matchedMasjid.id : '',
+              nama_masjid: matchedMasjid ? matchedMasjid.nama_masjid : namaMasjidRaw,
+              wilayah_dpc: dpcRaw || (matchedMasjid ? matchedMasjid.wilayah_dpc : 'DPC Pasangkayu'),
+              tanggal: fridayIso,
+              khatib_utama: khatibUtama,
+              khatib_pengganti: khatibPengganti,
+              alamat: alamatRaw || (matchedMasjid ? matchedMasjid.alamat : '-'),
+              gmaps: gmapsRaw || (matchedMasjid ? matchedMasjid.gmaps : '')
+            };
+
+            return { rowNum: idx + 2, valid, payload };
+          });
+
+          const validItems = khutbahBulkParsedRows.filter(r => r.valid);
+          document.getElementById('khutbah-bulk-valid-count').textContent = validItems.length;
+          document.getElementById('btn-execute-khutbah-bulk').disabled = validItems.length === 0;
+
+          document.getElementById('khutbah-bulk-preview-tbody').innerHTML = khutbahBulkParsedRows.map(r => `
+            <tr class="${r.valid ? 'bg-white' : 'bg-rose-50'}">
+              <td class="py-2 px-3 font-mono">#${r.rowNum}</td>
+              <td class="py-2 px-3 font-bold">${escapeHtml(r.payload.nama_masjid || '-')} <span class="text-slate-500">(${escapeHtml(r.payload.wilayah_dpc)})</span></td>
+              <td class="py-2 px-3 font-mono">${escapeHtml(r.payload.tanggal || 'Tanggal tidak valid')}</td>
+              <td class="py-2 px-3 font-bold">${escapeHtml(r.payload.khatib_utama || '-')}</td>
+              <td class="py-2 px-3">${escapeHtml(r.payload.khatib_pengganti || '-')}</td>
+              <td class="py-2 px-3">
+                ${r.valid
+                  ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">Valid</span>'
+                  : '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">Wajib Masjid, Tanggal & Khatib</span>'
+                }
+              </td>
+            </tr>
+          `).join('');
+
+          document.getElementById('khutbah-bulk-preview-box').classList.remove('hidden');
+        } catch (err) {
+          showToast(`Gagal memproses Excel: ${err.message}`, 'error');
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function executeKhutbahBulkImport() {
+      const validItems = khutbahBulkParsedRows.filter(r => r.valid).map(r => r.payload);
+      if (validItems.length === 0) return;
+
+      khutbahJumatList = [...validItems.reverse(), ...khutbahJumatList];
+      await persistAndDualSync();
+      closeKhutbahBulkModal();
+      refreshAllViews();
+      showToast(`Berhasil mengimpor ${validItems.length} jadwal Khutbah Jumat.`, 'success');
+    }
+
+    function exportKhutbahExcel() {
+      if (typeof window.XLSX === 'undefined') {
+        showToast('Library Excel belum siap.', 'error');
+        return;
+      }
+      if (khutbahJumatList.length === 0) {
+        showToast('Belum ada jadwal Khutbah Jumat untuk diunduh.', 'error');
+        return;
+      }
+      const rows = khutbahJumatList.map((k, i) => ({
+        'No': i + 1,
+        'Nama Masjid': k.nama_masjid,
+        'Wilayah DPC': k.wilayah_dpc,
+        'Tanggal Jumat': k.tanggal,
+        'Nama Khatib Terjadwal': k.khatib_utama,
+        'Khatib Pengganti': k.khatib_pengganti || '-',
+        'Alamat Masjid': k.alamat || '-',
+        'GMaps': k.gmaps || '-'
+      }));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Jadwal_Khutbah_Jumat');
+      XLSX.writeFile(wb, 'SIDAK_Jadwal_Khutbah_Jumat_Pasangkayu.xlsx');
+      showToast('Jadwal Khutbah Jumat berhasil diunduh.', 'success');
+    }
+
+    // =========================================================================
+    // 13. LAMAN TAKLIM (JADWAL RUTIN & KEAKTIFAN PEKANAN KALENDER BERJALAN)
+    // =========================================================================
+    function generateWeeksBetweenDates(startIso, endIso) {
+      const startDate = new Date(startIso + 'T00:00:00');
+      const endDate = new Date(endIso + 'T00:00:00');
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || startDate > endDate) {
+        return [];
+      }
+
+      let cursorFriday = new Date(getFridayOfWeek(startDate) + 'T00:00:00');
+      const lastFriday = new Date(getFridayOfWeek(endDate) + 'T00:00:00');
+
+      const weeks = [];
+      let idx = 1;
+      while (cursorFriday <= lastFriday) {
+        const yyyy = cursorFriday.getFullYear();
+        const mm = String(cursorFriday.getMonth() + 1).padStart(2, '0');
+        const dd = String(cursorFriday.getDate()).padStart(2, '0');
+        const weekKey = `${yyyy}-${mm}-${dd}`;
+
+        const mon = new Date(cursorFriday);
+        mon.setDate(mon.getDate() - 4);
+        const sun = new Date(cursorFriday);
+        sun.setDate(sun.getDate() + 2);
+
+        const fmtShort = (d) => `${d.getDate()} ${BULAN_ID_SHORT[d.getMonth()]}`;
+        weeks.push({
+          weekNumber: idx,
+          weekKey,
+          rangeLabel: `${fmtShort(mon)} – ${fmtShort(sun)} ${yyyy}`
+        });
+
+        idx += 1;
+        cursorFriday.setDate(cursorFriday.getDate() + 7);
+      }
+      return weeks;
+    }
+
+    function calculateTaklimActivityStats(taklimObj, periodStartOverride = '', periodEndOverride = '') {
+      const startBase = taklimObj.tanggal_mulai || CURRENT_WEEK_FRIDAY_ISO;
+      const effectiveStart = (periodStartOverride && periodStartOverride > startBase)
+        ? periodStartOverride
+        : startBase;
+      const effectiveEnd = periodEndOverride || CURRENT_WEEK_FRIDAY_ISO;
+
+      const weeks = generateWeeksBetweenDates(effectiveStart, effectiveEnd);
+      const attendedSet = new Set(Array.isArray(taklimObj.attended_weeks) ? taklimObj.attended_weeks : []);
+      const attendedInPeriod = weeks.filter(w => attendedSet.has(w.weekKey)).length;
+      const totalWeeks = weeks.length;
+      const percentage = totalWeeks > 0 ? Math.round((attendedInPeriod / totalWeeks) * 100) : 0;
+
+      return {
+        weeks,
+        attendedInPeriod,
+        totalWeeks,
+        percentage
+      };
+    }
+
+    function resetTaklimPeriodFilter() {
+      document.getElementById('search-taklim').value = '';
+      document.getElementById('taklim-period-start').value = '';
+      document.getElementById('taklim-period-end').value = '';
+      renderTaklimTable();
+    }
+
+    function renderTaklimTable() {
+      const tbody = document.getElementById('taklim-tbody');
+      const emptyEl = document.getElementById('taklim-empty-state');
+      const summaryEl = document.getElementById('taklim-period-summary');
+      if (!tbody || !emptyEl) return;
+
+      const q = (document.getElementById('search-taklim')?.value || '').trim().toLowerCase();
+      const pStart = document.getElementById('taklim-period-start')?.value || '';
+      const pEnd = document.getElementById('taklim-period-end')?.value || '';
+
+      if (summaryEl) {
+        if (pStart || pEnd) {
+          summaryEl.innerHTML = `Menampilkan persentase keaktifan khusus periode: <strong>${escapeHtml(pStart || 'Awal Taklim')}</strong> s.d. <strong>${escapeHtml(pEnd || 'Pekan Berjalan')}</strong>`;
+        } else {
+          summaryEl.innerHTML = `Menampilkan persentase keaktifan terhitung <strong>sejak awal masing-masing taklim berjalan</strong> hingga pekan berjalan.`;
+        }
+      }
+
+      const filtered = taklimList.filter(t =>
+        !q ||
+        (t.nama_masjid || '').toLowerCase().includes(q) ||
+        (t.pemateri || '').toLowerCase().includes(q) ||
+        (t.pembahasan || '').toLowerCase().includes(q)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      tbody.innerHTML = filtered.map((t, idx) => {
+        const stats = calculateTaklimActivityStats(t, pStart, pEnd);
+        let pctPillClass = 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100';
+        if (stats.percentage >= 80) {
+          pctPillClass = 'bg-emerald-100 text-emerald-900 border-emerald-400 hover:bg-emerald-200';
+        } else if (stats.percentage >= 50) {
+          pctPillClass = 'bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-200';
+        } else if (stats.percentage > 0) {
+          pctPillClass = 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200';
+        }
+
+        return `
+          <tr class="hover:bg-sky-50/60 transition-colors">
+            <td class="py-3.5 px-4 font-mono text-xs text-slate-500">${idx + 1}</td>
+            <td class="py-3.5 px-4">
+              <div class="font-extrabold text-slate-900">${escapeHtml(t.nama_masjid)}</div>
+              <span class="text-[11px] font-semibold text-emerald-700">${escapeHtml(t.wilayah_dpc || '')} • Mulai ${escapeHtml(formatTanggalJumatId(t.tanggal_mulai))}</span>
+            </td>
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              <div class="font-bold text-sky-900">${escapeHtml(t.hari)}</div>
+              <div class="text-xs text-slate-600">${escapeHtml(t.pukul)}</div>
+            </td>
+            <td class="py-3.5 px-4 font-bold text-slate-800">${escapeHtml(t.pemateri)}</td>
+            <td class="py-3.5 px-4 text-xs text-slate-700">${escapeHtml(t.pembahasan)}</td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <button
+                type="button"
+                onclick="openTaklimKeaktifanModal('${escapeHtml(t.id)}')"
+                title="Klik untuk menyunting keaktifan pekanan taklim ini"
+                class="inline-flex flex-col items-center px-3.5 py-1.5 rounded-xl border font-extrabold transition-all cursor-pointer shadow-2xs ${pctPillClass}"
+              >
+                <span class="text-sm tabular-nums">${stats.percentage}%</span>
+                <span class="text-[10px] font-semibold opacity-85 tabular-nums">${stats.attendedInPeriod}/${stats.totalWeeks} Pekan • Sunting</span>
+              </button>
+            </td>
+            <td class="py-3.5 px-4 text-right whitespace-nowrap">
+              <div class="inline-flex items-center gap-1.5">
+                <button type="button" onclick="openTaklimFormModal('${escapeHtml(t.id)}')" class="px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-600 text-sky-700 hover:text-white border border-sky-200 text-xs font-bold cursor-pointer">Edit</button>
+                <button type="button" onclick="confirmDeleteTaklim('${escapeHtml(t.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-bold cursor-pointer">Hapus</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openTaklimFormModal(editId = null) {
+      document.getElementById('form-taklim').reset();
+      const sel = document.getElementById('taklim-masjid-select');
+      if (sel) {
+        sel.innerHTML = masjidBinaanList.length > 0
+          ? masjidBinaanList.map(m => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.nama_masjid)} — (${escapeHtml(m.wilayah_dpc)})</option>`).join('')
+          : `<option value="">Belum ada Masjid Binaan</option>`;
+      }
+
+      if (editId) {
+        const item = taklimList.find(t => t.id === editId);
+        if (!item) return;
+        document.getElementById('taklim-edit-id').value = item.id;
+        document.getElementById('modal-taklim-title').textContent = 'Edit Jadwal Taklim Rutin';
+        if (item.masjid_id) sel.value = item.masjid_id;
+        document.getElementById('taklim-hari').value = item.hari;
+        document.getElementById('taklim-pukul').value = item.pukul;
+        document.getElementById('taklim-pemateri').value = item.pemateri;
+        document.getElementById('taklim-pembahasan').value = item.pembahasan;
+        document.getElementById('taklim-tanggal-mulai').value = item.tanggal_mulai;
+      } else {
+        document.getElementById('taklim-edit-id').value = '';
+        document.getElementById('modal-taklim-title').textContent = 'Tambah Jadwal Taklim Rutin';
+        document.getElementById('taklim-tanggal-mulai').value = CURRENT_WEEK_FRIDAY_ISO;
+      }
+
+      document.getElementById('modal-taklim-form').classList.remove('hidden');
+    }
+
+    function closeTaklimFormModal() {
+      document.getElementById('modal-taklim-form').classList.add('hidden');
+    }
+
+    async function handleSaveTaklimSubmit(event) {
+      event.preventDefault();
+      const editId = document.getElementById('taklim-edit-id').value;
+      const masjidId = document.getElementById('taklim-masjid-select').value;
+      const masjidObj = masjidBinaanList.find(m => m.id === masjidId);
+      const hari = document.getElementById('taklim-hari').value;
+      const pukul = document.getElementById('taklim-pukul').value.trim();
+      const pemateri = document.getElementById('taklim-pemateri').value.trim();
+      const pembahasan = document.getElementById('taklim-pembahasan').value.trim();
+      const tanggalMulai = document.getElementById('taklim-tanggal-mulai').value;
+
+      if (!masjidObj || !hari || !pukul || !pemateri || !pembahasan || !tanggalMulai) {
+        showToast('Lengkapi seluruh kolom jadwal taklim rutin (pastikan Masjid Binaan sudah tersedia).', 'error');
+        return;
+      }
+
+      const existing = editId ? taklimList.find(t => t.id === editId) : null;
+      const entry = {
+        id: editId || ('TKL-' + Date.now().toString(36).toUpperCase()),
+        masjid_id: masjidObj.id,
+        nama_masjid: masjidObj.nama_masjid,
+        wilayah_dpc: masjidObj.wilayah_dpc,
+        hari,
+        pukul,
+        pemateri,
+        pembahasan,
+        tanggal_mulai: tanggalMulai,
+        attended_weeks: existing ? [...existing.attended_weeks] : []
+      };
+
+      if (editId) {
+        const idx = taklimList.findIndex(t => t.id === editId);
+        if (idx !== -1) taklimList[idx] = entry;
+        showToast('Jadwal Taklim diperbarui.', 'success');
+      } else {
+        taklimList.unshift(entry);
+        showToast('Jadwal Taklim baru ditambahkan.', 'success');
+      }
+
+      await persistAndDualSync();
+      closeTaklimFormModal();
+      refreshAllViews();
+    }
+
+    function confirmDeleteTaklim(id) {
+      openConfirmModal({
+        title: 'Hapus Jadwal Taklim',
+        message: 'Apakah Anda yakin ingin menghapus jadwal taklim ini?',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+          taklimList = taklimList.filter(t => t.id !== id);
+          await deleteRecordFromSupabase(id);
+          await persistAndDualSync();
+          refreshAllViews();
+          showToast('Jadwal taklim berhasil dihapus.', 'success');
+        }
+      });
+    }
+
+    // --- Modal Sunting Keaktifan Taklim (Checklist Pekanan & Periode) ---
+    function openTaklimKeaktifanModal(taklimId) {
+      const item = taklimList.find(t => t.id === taklimId);
+      if (!item) return;
+
+      document.getElementById('keaktifan-taklim-id').value = item.id;
+      document.getElementById('keaktifan-modal-masjid').textContent = item.nama_masjid;
+      document.getElementById('keaktifan-modal-meta').textContent =
+        `${item.hari}, ${item.pukul} • Pemateri: ${item.pemateri} • Mulai berjalan: ${formatTanggalJumatId(item.tanggal_mulai)}`;
+
+      document.getElementById('modal-keaktifan-start').value = document.getElementById('taklim-period-start')?.value || '';
+      document.getElementById('modal-keaktifan-end').value = document.getElementById('taklim-period-end')?.value || '';
+
+      renderTaklimKeaktifanChecklist();
+      document.getElementById('modal-taklim-keaktifan').classList.remove('hidden');
+    }
+
+    function closeTaklimKeaktifanModal() {
+      document.getElementById('modal-taklim-keaktifan').classList.add('hidden');
+    }
+
+    function resetModalKeaktifanPeriod() {
+      document.getElementById('modal-keaktifan-start').value = '';
+      document.getElementById('modal-keaktifan-end').value = '';
+      renderTaklimKeaktifanChecklist();
+    }
+
+    function renderTaklimKeaktifanChecklist() {
+      const taklimId = document.getElementById('keaktifan-taklim-id').value;
+      const item = taklimList.find(t => t.id === taklimId);
+      const container = document.getElementById('keaktifan-weeks-checklist');
+      if (!item || !container) return;
+
+      const pStart = document.getElementById('modal-keaktifan-start').value;
+      const pEnd = document.getElementById('modal-keaktifan-end').value;
+      const stats = calculateTaklimActivityStats(item, pStart, pEnd);
+      const attendedSet = new Set(Array.isArray(item.attended_weeks) ? item.attended_weeks : []);
+
+      document.getElementById('keaktifan-score-pct').textContent = `${stats.percentage}%`;
+      document.getElementById('keaktifan-score-detail').textContent =
+        `${stats.attendedInPeriod} dari ${stats.totalWeeks} pekan kalender terlaksana`;
+
+      if (stats.weeks.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-xs text-slate-400 italic py-4 text-center">Tidak ada rentang pekan pada periode yang dipilih.</p>`;
+        return;
+      }
+
+      container.innerHTML = stats.weeks.map(w => {
+        const checked = attendedSet.has(w.weekKey);
+        return `
+          <label class="flex items-center justify-between gap-2 p-3 rounded-xl border transition-all cursor-pointer ${
+            checked
+              ? 'bg-emerald-50 border-emerald-400 text-emerald-950 font-bold'
+              : 'bg-white border-slate-200 text-slate-700 hover:bg-sky-50/50'
+          }">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <input
+                type="checkbox"
+                ${checked ? 'checked' : ''}
+                onchange="toggleTaklimWeekAttendance('${escapeHtml(item.id)}', '${w.weekKey}', this.checked)"
+                class="w-4 h-4 rounded accent-emerald-600 cursor-pointer shrink-0"
+              />
+              <div class="min-w-0">
+                <span class="text-xs font-extrabold block">Pekan ${w.weekNumber}</span>
+                <span class="text-[11px] opacity-80 block truncate">${escapeHtml(w.rangeLabel)}</span>
+              </div>
+            </div>
+            <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ${
+              checked ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
+            }">
+              ${checked ? 'Terlaksana' : 'Belum'}
+            </span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    async function toggleTaklimWeekAttendance(taklimId, weekKey, isChecked) {
+      const idx = taklimList.findIndex(t => t.id === taklimId);
+      if (idx === -1) return;
+
+      const set = new Set(Array.isArray(taklimList[idx].attended_weeks) ? taklimList[idx].attended_weeks : []);
+      if (isChecked) set.add(weekKey);
+      else set.delete(weekKey);
+
+      taklimList[idx] = {
+        ...taklimList[idx],
+        attended_weeks: Array.from(set).sort()
+      };
+
+      await persistAndDualSync();
+      renderTaklimKeaktifanChecklist();
+      renderTaklimTable();
+    }
+
+    async function toggleAllVisibleTaklimWeeks(checkedState) {
+      const taklimId = document.getElementById('keaktifan-taklim-id').value;
+      const idx = taklimList.findIndex(t => t.id === taklimId);
+      if (idx === -1) return;
+
+      const pStart = document.getElementById('modal-keaktifan-start').value;
+      const pEnd = document.getElementById('modal-keaktifan-end').value;
+      const stats = calculateTaklimActivityStats(taklimList[idx], pStart, pEnd);
+      const set = new Set(Array.isArray(taklimList[idx].attended_weeks) ? taklimList[idx].attended_weeks : []);
+
+      stats.weeks.forEach(w => {
+        if (checkedState) set.add(w.weekKey);
+        else set.delete(w.weekKey);
+      });
+
+      taklimList[idx] = {
+        ...taklimList[idx],
+        attended_weeks: Array.from(set).sort()
+      };
+
+      await persistAndDualSync();
+      renderTaklimKeaktifanChecklist();
+      renderTaklimTable();
+    }
+
+    // =========================================================================
+    // 14. MODAL KONFIRMASI CUSTOM & INISIALISASI APLIKASI
+    // =========================================================================
+    function openConfirmModal({ title, message, confirmText, onConfirm }) {
+      document.getElementById('confirm-title').textContent = title || 'Konfirmasi Tindakan';
+      document.getElementById('confirm-message').textContent = message || 'Apakah Anda yakin ingin melanjutkan?';
+      const execBtn = document.getElementById('confirm-execute-btn');
+      execBtn.textContent = confirmText || 'Ya, Lanjutkan';
+      execBtn.onclick = () => {
+        closeConfirmModal();
+        if (typeof onConfirm === 'function') onConfirm();
+      };
+      document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('modal-confirm').classList.add('hidden');
+    }
+
+    document.addEventListener('click', (event) => {
+      const sPic = document.getElementById('sahabat-pic');
+      const sBox = document.getElementById('sahabat-pic-suggest');
+      if (sPic && sBox && !sPic.contains(event.target) && !sBox.contains(event.target)) {
+        sBox.classList.add('hidden');
+      }
+
+      const mPic = document.getElementById('mitra-pic');
+      const mBox = document.getElementById('mitra-pic-suggest');
+      if (mPic && mBox && !mPic.contains(event.target) && !mBox.contains(event.target)) {
+        mBox.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && localStorage.getItem(SIDAK_KEYS.SESSION)) {
+        pullExternalKaderNow(true);
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllDataFromLocal();
+      updateSidebarDualSyncIndicators();
+      setInterval(() => updateSidebarDualSyncIndicators(), 30000);
+
+      try {
+        const savedSession = localStorage.getItem(SIDAK_KEYS.SESSION);
+        if (savedSession) {
+          const parsed = JSON.parse(savedSession);
+          if (parsed && parsed.email) {
+            enterAppWithSession(parsed.email, parsed.modeLabel || 'Admin SIDAK');
+          }
+        }
+      } catch (_e) {
+        // Tetap di laman login jika sesi belum ada
+      }
+    });
+  </script>
+</body>
+</html>
