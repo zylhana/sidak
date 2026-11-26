@@ -104,16 +104,19 @@
   <div id="toast-container" class="fixed bottom-4 right-4 z-[90] flex flex-col gap-2 max-w-sm w-[calc(100vw-2rem)] pointer-events-none"></div>
 
   <!-- ======================================================================= -->
-  <!-- 1. LAMAN LOGIN (SUPABASE AUTH & MODE DEMO LOKAL)                        -->
+  <!-- 1. LAMAN LOGIN (SUPABASE AUTH)                                          -->
   <!-- ======================================================================= -->
   <div id="auth-gate" class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-login-backdrop">
     <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-sky-200/80 overflow-hidden">
 
-<!-- Header Kartu Login -->
-   <div class="bg-sky-emerald-gradient px-6 py-7 text-white text-center space-y-2.5">
-     <div class="w-16 h-16 mx-auto rounded-2xl bg-white p-2 flex items-center justify-center shadow-md border border-white/30 overflow-hidden">
-       <img src="logo.png" alt="Logo SIDAK" class="w-full h-full object-contain" />
-     </div>
+      <!-- Header Kartu Login -->
+      <div class="bg-sky-emerald-gradient px-6 py-7 text-white text-center space-y-2.5">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-white p-2 flex items-center justify-center shadow-md border border-white/30 overflow-hidden">
+          <img src="logo.png" alt="Logo SIDAK" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" class="w-full h-full object-contain" />
+          <svg class="hidden w-9 h-9 text-[#0284c7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
         <div class="flex items-center justify-center gap-2">
           <h1 class="text-2xl font-extrabold tracking-tight text-white">SIDAK</h1>
           <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30">Pasangkayu</span>
@@ -178,8 +181,6 @@
           </svg>
           <span>Masuk ke SIDAK</span>
         </button>
-
-
       </form>
     </div>
   </div>
@@ -200,12 +201,15 @@
 
         <!-- Bagian Atas Sidebar: Brand & Menu Navigasi -->
         <div class="overflow-y-auto">
-<!-- Brand Header -->
-       <div class="p-5 border-b border-white/15 flex items-center justify-between gap-3">
-         <div class="flex items-center gap-3 min-w-0">
-           <div class="w-11 h-11 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-md border border-white/30 shrink-0 overflow-hidden">
-             <img src="logo.png" alt="Logo SIDAK" class="w-full h-full object-contain" />
-           </div>
+          <!-- Brand Header -->
+          <div class="p-5 border-b border-white/15 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-md border border-white/30 shrink-0 overflow-hidden">
+                <img src="logo.png" alt="Logo SIDAK" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" class="w-full h-full object-contain" />
+                <svg class="hidden w-6 h-6 text-[#0284c7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-2">
                   <h1 class="text-xl font-extrabold tracking-tight text-white">SIDAK</h1>
@@ -243,7 +247,7 @@
             </div>
           </div>
 
-          <!-- Menu Navigasi 5 Laman SIDAK -->
+          <!-- Menu Navigasi Laman SIDAK -->
           <nav class="p-4 space-y-1.5" aria-label="Navigasi Utama SIDAK">
             <p class="px-3 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/70">Menu Utama</p>
 
@@ -293,14 +297,13 @@
               <svg class="w-5 h-5 text-white/90 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              <span>DPC</span>
+              <span>DPC (12 Kec.)</span>
             </button>
           </nav>
         </div>
 
         <!-- ================================================================= -->
         <!-- BAGIAN PALING BAWAH SIDEBAR: SUPABASE, GITHUB & SINKRONISASI      -->
-        <!-- (Dipusatkan di sini agar bagian atas samping judul laman bersih)  -->
         <!-- ================================================================= -->
         <div class="p-4 border-t border-white/15 bg-black/15 space-y-2.5">
           <div class="flex items-center justify-between">
@@ -360,7 +363,7 @@
       <!-- =================================================================== -->
       <div class="flex-1 flex flex-col min-w-0">
 
-        <!-- TOP HEADER BAR (BERSIH & RINGKAS SESUAI PERMINTAAN) -->
+        <!-- TOP HEADER BAR -->
         <header class="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-sky-200/80 px-4 sm:px-6 lg:px-8 py-3.5">
           <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
 
@@ -409,7 +412,7 @@
                   </span>
                   <h3 class="text-lg sm:text-xl font-extrabold tracking-tight">Ringkasan Eksekutif Gerakan Dakwah</h3>
                   <p class="text-xs sm:text-sm text-sky-50/95 max-w-2xl">
-                    Pantau perkembangan kader, capaian Gerakan Sahabat Dakwah (GSD), program pembinaan masjid, serta status kemandirian DPC secara terpadu.
+                    Pantau perkembangan kader, capaian Gerakan Sahabat Dakwah (GSD), program pembinaan masjid, serta status kemandirian 12 DPC kecamatan secara terpadu.
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
@@ -417,12 +420,12 @@
                     + Input Data GSD
                   </button>
                   <button type="button" onclick="navigateTo('dpc')" class="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/30 text-xs font-bold transition-colors cursor-pointer">
-                    Kelola DPC
+                    Kelola 12 DPC
                   </button>
                 </div>
               </div>
 
-              <!-- 4 Kartu Statistik Utama (Tunggal, Sejajar, Tidak Double) -->
+              <!-- 4 Kartu Statistik Utama -->
               <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
                 <!-- Card 1: Jumlah Kader -->
@@ -491,7 +494,7 @@
                   <div class="flex items-start justify-between gap-3">
                     <div>
                       <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">Total DPC</p>
-                      <p id="kpi-total-dpc" class="text-3xl font-extrabold text-slate-900 mt-2 tabular-nums">0</p>
+                      <p id="kpi-total-dpc" class="text-3xl font-extrabold text-slate-900 mt-2 tabular-nums">12</p>
                     </div>
                     <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shrink-0">
                       <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -502,7 +505,7 @@
                   <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-100 text-center text-xs">
                     <div class="px-1.5 py-1 rounded-lg bg-amber-50 border border-amber-200">
                       <span class="text-[9px] font-bold text-amber-800 block">Penjajakan</span>
-                      <span id="kpi-dpc-penjajakan" class="font-extrabold text-amber-950 tabular-nums">0</span>
+                      <span id="kpi-dpc-penjajakan" class="font-extrabold text-amber-950 tabular-nums">12</span>
                     </div>
                     <div class="px-1.5 py-1 rounded-lg bg-sky-50 border border-sky-200">
                       <span class="text-[9px] font-bold text-sky-800 block">Eksis</span>
@@ -534,7 +537,7 @@
                 <!-- Grafik 2: Status Kelembagaan DPC -->
                 <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-sky-200/80 shadow-xs flex flex-col justify-between">
                   <div class="mb-3">
-                    <h3 class="text-base font-extrabold text-slate-900">Status Kelembagaan DPC</h3>
+                    <h3 class="text-base font-extrabold text-slate-900">Status Kelembagaan 12 DPC</h3>
                     <p class="text-xs text-slate-500 mt-0.5">Komposisi DPC berdasarkan kategori Penjajakan, Eksis, dan Mandiri</p>
                   </div>
                   <div class="relative h-52 w-full my-1">
@@ -543,7 +546,7 @@
                   <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-3 gap-2 text-center text-xs">
                     <div class="p-2 rounded-xl bg-amber-50 border border-amber-200">
                       <span class="font-bold text-amber-800 block">Penjajakan</span>
-                      <span id="chart-legend-penjajakan" class="font-extrabold text-slate-900 text-sm tabular-nums">0</span>
+                      <span id="chart-legend-penjajakan" class="font-extrabold text-slate-900 text-sm tabular-nums">12</span>
                     </div>
                     <div class="p-2 rounded-xl bg-sky-50 border border-sky-200">
                       <span class="font-bold text-sky-800 block">Eksis</span>
@@ -561,7 +564,7 @@
               <!-- Grafik 3: Perbandingan Masjid Binaan & KKI Binaan per DPC -->
               <div class="bg-white rounded-2xl p-5 sm:p-6 border border-sky-200/80 shadow-xs space-y-4">
                 <div>
-                  <h3 class="text-base font-extrabold text-slate-900">Sebaran Masjid Binaan & KKI Binaan per DPC</h3>
+                  <h3 class="text-base font-extrabold text-slate-900">Sebaran Masjid Binaan & KKI Binaan per DPC (12 Kecamatan)</h3>
                   <p class="text-xs text-slate-500 mt-0.5">Perbandingan otomatis jumlah Masjid Binaan dan KKI Binaan pada setiap DPC di Kabupaten Pasangkayu</p>
                 </div>
                 <div class="relative h-64 w-full">
@@ -572,7 +575,7 @@
             </section>
 
             <!-- ============================================================= -->
-            <!-- LAMAN 2: MASTER (DIREKTORI KADER — KOSONG & SIAP SINKRON)     -->
+            <!-- LAMAN 2: MASTER (DIREKTORI KADER)                             -->
             <!-- ============================================================= -->
             <section id="page-master" class="hidden space-y-5">
 
@@ -580,7 +583,7 @@
                 <div>
                   <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Master — Direktori Kader</h2>
                   <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    Data kader akan ditarik dari proyek Supabase / repositori GitHub SIKAD lain yang Anda miliki. Saat ini dikosongkan dan siap dihubungkan kapan saja.
+                    Data kader domisili DPD Pasangkayu ditarik secara real-time dari proyek Supabase SIKAD untuk rekomendasi auto-fill PIC GSD.
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -596,7 +599,7 @@
               <!-- Banner Informasi Kesiapan Sinkronisasi Eksternal -->
               <div class="bg-white rounded-2xl p-5 border border-sky-200 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="space-y-1">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2">
                     <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200">Integrasi Auto-Fill PIC GSD</span>
                     <span id="master-kader-source-status" class="text-xs font-semibold text-slate-500">Status: Menunggu sinkronisasi sumber eksternal</span>
                   </div>
@@ -620,7 +623,7 @@
                     </svg>
                     <input type="text" id="search-master-kader" oninput="renderMasterKaderTable()" placeholder="Cari nama kader atau no. induk..." class="w-full pl-10 pr-3.5 py-2 bg-sky-50/50 border border-sky-200 rounded-xl text-xs sm:text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
                   </div>
-                  <span class="text-xs text-slate-500">Sumber data: Proyek Supabase / GitHub Repositori Lain</span>
+                  <span class="text-xs text-slate-500">Sumber data: Proyek Supabase / GitHub Repositori SIKAD</span>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -636,7 +639,7 @@
                       </tr>
                     </thead>
                     <tbody id="master-kader-tbody" class="divide-y divide-slate-100 text-sm">
-                      <!-- Kosong secara default -->
+                      <!-- Diisi dinamis oleh JS -->
                     </tbody>
                   </table>
                 </div>
@@ -649,9 +652,9 @@
                     </svg>
                   </div>
                   <div class="space-y-1 max-w-md mx-auto">
-                    <h4 class="text-sm font-extrabold text-slate-800">Direktori Kader Masih Dikosongkan</h4>
+                    <h4 class="text-sm font-extrabold text-slate-800">Direktori Kader Belum Terisi</h4>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                      Data akan ditarik dari proyek Supabase yang terhubung dengan repositori lain milik Anda di GitHub. Klik tombol <strong>Konfigurasi & Tarik Data Kader</strong> apabila Anda sudah siap menghubungkannya.
+                      Data ditarik dari proyek Supabase yang terhubung dengan repositori SIKAD Anda. Klik tombol <strong>Konfigurasi & Tarik Data Kader</strong> untuk menyinkronkan secara manual.
                     </p>
                   </div>
                 </div>
@@ -769,7 +772,7 @@
                   </div>
                 </div>
 
-                <!-- Tabel Daftar Mitra Dakwah (11 Kolom Data Lengkap + No & Aksi) -->
+                <!-- Tabel Daftar Mitra Dakwah -->
                 <div class="bg-white rounded-2xl border border-sky-200/80 shadow-xs overflow-hidden">
                   <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
@@ -1120,19 +1123,19 @@
             </section>
 
             <!-- ============================================================= -->
-            <!-- LAMAN 7: DPC (CONDITIONAL RENDERING & PEMBEDA ANTAR DPC)      -->
+            <!-- LAMAN 7: DPC (12 KECAMATAN KABUPATEN PASANGKAYU)              -->
             <!-- ============================================================= -->
             <section id="page-dpc" class="hidden space-y-6">
 
               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Dewan Pengurus Cabang (DPC)</h2>
+                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Dewan Pengurus Cabang (DPC) — 12 Kecamatan Pasangkayu</h2>
                   <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    Antarmuka adaptif berdasarkan status kelembagaan DPC (<strong class="text-amber-700">Penjajakan</strong>, <strong class="text-sky-700">Eksis</strong>, dan <strong class="text-emerald-700">Mandiri</strong>).
+                    Terdaftar otomatis 12 DPC kecamatan se-Kabupaten Pasangkayu dengan status awal <strong class="text-amber-700">Penjajakan</strong>. Nama <strong>Ketua DPC</strong> dapat diisi atau diperbarui kapan saja pada setiap kartu.
                   </p>
                 </div>
-                <button type="button" onclick="openAddDpcModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-emerald-gradient bg-sky-emerald-gradient-hover text-white text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer self-start sm:self-auto">
-                  <span>+ Tambah DPC Baru</span>
+                <button type="button" onclick="openAddDpcModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-sky-emerald-gradient bg-sky-emerald-gradient-hover text-white text-xs sm:text-sm font-bold shadow-sm transition-all cursor-pointer self-start sm:self-auto shrink-0">
+                  <span>+ Tambah DPC Lainnya</span>
                 </button>
               </div>
 
@@ -1140,10 +1143,10 @@
               <div class="bg-white rounded-2xl p-4 border border-sky-200/80 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div class="flex flex-wrap items-center gap-2">
                   <button type="button" id="btn-dpc-filter-ALL" onclick="setDpcStatusFilter('ALL')" class="dpc-filter-pill px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-sky-emerald-gradient text-white shadow-2xs cursor-pointer">
-                    Semua (<span id="dpc-count-all">0</span>)
+                    Semua (<span id="dpc-count-all">12</span>)
                   </button>
                   <button type="button" id="btn-dpc-filter-Penjajakan" onclick="setDpcStatusFilter('Penjajakan')" class="dpc-filter-pill px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 cursor-pointer">
-                    Penjajakan (<span id="dpc-count-Penjajakan">0</span>)
+                    Penjajakan (<span id="dpc-count-Penjajakan">12</span>)
                   </button>
                   <button type="button" id="btn-dpc-filter-Eksis" onclick="setDpcStatusFilter('Eksis')" class="dpc-filter-pill px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200 cursor-pointer">
                     Eksis (<span id="dpc-count-Eksis">0</span>)
@@ -1168,7 +1171,7 @@
 
               <div id="dpc-empty-state" class="hidden bg-white rounded-2xl border border-sky-200 py-12 px-4 text-center space-y-1.5">
                 <p class="text-sm font-bold text-slate-700">Tidak ada data DPC yang sesuai filter.</p>
-                <p class="text-xs text-slate-500">Klik "+ Tambah DPC Baru" untuk mendaftarkan DPC baru ke kategori Penjajakan.</p>
+                <p class="text-xs text-slate-500">Ubah filter status atau kata kunci pencarian untuk menampilkan 12 DPC Kabupaten Pasangkayu.</p>
               </div>
 
             </section>
@@ -1190,14 +1193,14 @@
         <div class="bg-sky-emerald-gradient px-6 py-4 text-white flex items-center justify-between gap-3">
           <div>
             <h3 class="text-base sm:text-lg font-extrabold">Sinkronisasi Direktori Kader Eksternal</h3>
-            <p class="text-xs text-sky-50">Hubungkan URL JSON GitHub atau Proyek Supabase SIKAD Kader Anda nanti</p>
+            <p class="text-xs text-sky-50">Hubungkan URL JSON GitHub atau Proyek Supabase SIKAD Kader Anda</p>
           </div>
           <button type="button" onclick="closeExternalKaderSyncModal()" class="p-2 rounded-xl text-white/80 hover:bg-white/15 cursor-pointer">&times;</button>
         </div>
 
         <div class="p-6 space-y-4">
           <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-950 leading-relaxed">
-            Saat ini Direktori Kader dikosongkan. Jika Anda sudah siap menghubungkannya, isi salah satu sumber di bawah (URL raw JSON GitHub atau URL + Anon Key proyek Supabase kader Anda).
+            Sistem otomatis menyaring kader berdomisili <strong>DPD Pasangkayu</strong> untuk dijadikan rekomendasi auto-fill PIC pada modul GSD.
           </div>
 
           <div>
@@ -1222,7 +1225,7 @@
             </button>
             <div class="flex items-center gap-2">
               <button type="button" onclick="closeExternalKaderSyncModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold cursor-pointer">Batal</button>
-              <button type="button" onclick="pullExternalKaderNow()" class="px-4 py-2 rounded-xl bg-sky-emerald-gradient text-white text-xs font-extrabold shadow-xs cursor-pointer">Tarik Data Kader Sekarang</button>
+              <button type="button" onclick="pullExternalKaderNow(false)" class="px-4 py-2 rounded-xl bg-sky-emerald-gradient text-white text-xs font-extrabold shadow-xs cursor-pointer">Tarik Data Kader Sekarang</button>
             </div>
           </div>
         </div>
@@ -1606,7 +1609,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- MODAL 5: TAMBAH DPC BARU (NAMA DPC & KETUA DPC -> OTOMATIS PENJAJAKAN)  -->
+  <!-- MODAL 5: TAMBAH DPC BARU (OTOMATIS PENJAJAKAN, KETUA OPSIONAL)          -->
   <!-- ======================================================================= -->
   <div id="modal-add-dpc" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
     <div class="min-h-screen px-4 py-6 flex items-center justify-center">
@@ -1623,17 +1626,17 @@
 
         <form id="form-add-dpc" onsubmit="handleAddDpcSubmit(event)" class="p-6 space-y-4">
           <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold">
-            DPC baru yang ditambahkan akan otomatis terdaftar pada status <strong>Penjajakan</strong>.
+            12 DPC kecamatan se-Kabupaten Pasangkayu sudah terdaftar otomatis. Gunakan form ini jika ingin menambah cabang/perwakilan baru (otomatis berstatus <strong>Penjajakan</strong>).
           </div>
 
           <div>
             <label for="dpc-input-nama" class="block text-xs font-bold text-slate-700 mb-1">Nama DPC <span class="text-rose-500">*</span></label>
-            <input type="text" id="dpc-input-nama" required placeholder="Contoh: DPC Bambalamotu" class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+            <input type="text" id="dpc-input-nama" required placeholder="Contoh: DPC Perwakilan ..." class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
           </div>
 
           <div>
-            <label for="dpc-input-ketua" class="block text-xs font-bold text-slate-700 mb-1">Ketua DPC <span class="text-rose-500">*</span></label>
-            <input type="text" id="dpc-input-ketua" required placeholder="Contoh: Ust. Muhammad Yusuf, S.Pd.I." class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+            <label for="dpc-input-ketua" class="block text-xs font-bold text-slate-700 mb-1">Ketua DPC <span class="text-slate-400 font-normal">(Opsional — dapat diisi nanti)</span></label>
+            <input type="text" id="dpc-input-ketua" placeholder="Kosongkan jika Ketua DPC belum ditetapkan" class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
           </div>
 
           <div class="pt-3 border-t border-slate-100 flex justify-end gap-2.5">
@@ -2159,12 +2162,41 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
     ];
 
     // =========================================================================
-    // 2. DATA CONTOH AWAL KHUSUS DPD WAHDAH ISLAMIYAH PASANGKAYU
+    // 2. DATA 12 DPC KECAMATAN KABUPATEN PASANGKAYU (STATUS AWAL PENJAJAKAN)
     // =========================================================================
-   const DEFAULT_DPC_LIST = [];
-const DEFAULT_MASJID_LIST = [];
-const DEFAULT_SAHABAT_LIST = [];
-const DEFAULT_MITRA_LIST = [];
+    const PASANGKAYU_KECAMATAN_DPC = [
+      'DPC Pasangkayu',
+      'DPC Tikke Raya',
+      'DPC Pedongga',
+      'DPC Bambalamotu',
+      'DPC Bambaira',
+      'DPC Sarjo',
+      'DPC Baras',
+      'DPC Lariang',
+      'DPC Bulutaba',
+      'DPC Sarudu',
+      'DPC Dapurang',
+      'DPC Duripoku'
+    ];
+
+    function buildInitial12PasangkayuDpcs() {
+      return PASANGKAYU_KECAMATAN_DPC.map((namaDpc, index) => ({
+        id: `DPC-${String(index + 1).padStart(2, '0')}`,
+        nama_dpc: namaDpc,
+        ketua_dpc: '',
+        status: 'Penjajakan',
+        sk_pengurus: '',
+        alamat_markaz: '',
+        masjid_markaz: '',
+        kki_binaan_count: 0,
+        logs_penjajakan: []
+      }));
+    }
+
+    const DEFAULT_DPC_LIST = buildInitial12PasangkayuDpcs();
+    const DEFAULT_MASJID_LIST = [];
+    const DEFAULT_SAHABAT_LIST = [];
+    const DEFAULT_MITRA_LIST = [];
 
     // Helper untuk mendapatkan tanggal Jumat pada pekan berjalan
     function getFridayOfWeek(dateObj) {
@@ -2180,8 +2212,8 @@ const DEFAULT_MITRA_LIST = [];
 
     const CURRENT_WEEK_FRIDAY_ISO = getFridayOfWeek(new Date());
 
-const DEFAULT_KHUTBAH_LIST = [];
-const DEFAULT_TAKLIM_LIST = [];
+    const DEFAULT_KHUTBAH_LIST = [];
+    const DEFAULT_TAKLIM_LIST = [];
 
     // =========================================================================
     // 3. STATE GLOBAL APLIKASI
@@ -2192,7 +2224,6 @@ const DEFAULT_TAKLIM_LIST = [];
     let masjidViewMode = 'card';
     let dpcStatusFilter = 'ALL';
 
-    // Master Kader sengaja dikosongkan sesuai instruksi ("untuk saat ini kosongkan dlu")
     let kaderMasterList = [];
     let sahabatDakwahList = [];
     let mitraDakwahList = [];
@@ -2204,7 +2235,7 @@ const DEFAULT_TAKLIM_LIST = [];
     // State Kalender Pekanan Khutbah Jumat
     let khutbahSelectedYear = new Date().getFullYear();
     let khutbahSelectedMonth = 'ALL';
-    let selectedKhutbahWeeks = []; // Kosong = otomatis tampilkan pekan berjalan!
+    let selectedKhutbahWeeks = [];
     let khutbahBulkParsedRows = [];
 
     let gsdBulkActiveTab = 'sahabat';
@@ -2305,6 +2336,29 @@ const DEFAULT_TAKLIM_LIST = [];
       }
     }
 
+    function ensureAll12PasangkayuDpcs(existingList) {
+      const list = Array.isArray(existingList) ? [...existingList] : [];
+      const existingNamesLower = new Set(list.map(d => String(d.nama_dpc || '').trim().toLowerCase()));
+
+      PASANGKAYU_KECAMATAN_DPC.forEach((namaDpc, index) => {
+        if (!existingNamesLower.has(namaDpc.toLowerCase())) {
+          list.push({
+            id: `DPC-${String(index + 1).padStart(2, '0')}`,
+            nama_dpc: namaDpc,
+            ketua_dpc: '',
+            status: 'Penjajakan',
+            sk_pengurus: '',
+            alamat_markaz: '',
+            masjid_markaz: '',
+            kki_binaan_count: 0,
+            logs_penjajakan: []
+          });
+        }
+      });
+
+      return list;
+    }
+
     function loadAllDataFromLocal() {
       try {
         const rawKader = localStorage.getItem(SIDAK_KEYS.KADER_MASTER);
@@ -2315,41 +2369,41 @@ const DEFAULT_TAKLIM_LIST = [];
         const rawKhutbah = localStorage.getItem(SIDAK_KEYS.KHUTBAH);
         const rawTaklim = localStorage.getItem(SIDAK_KEYS.TAKLIM);
 
-        // Master Kader selalu default kosong [] jika belum pernah ditarik
         kaderMasterList = rawKader ? JSON.parse(rawKader) : [];
+        sahabatDakwahList = rawSahabat ? JSON.parse(rawSahabat) : [];
+        mitraDakwahList = rawMitra ? JSON.parse(rawMitra) : [];
+        masjidBinaanList = rawMasjid ? JSON.parse(rawMasjid) : [];
+        khutbahJumatList = rawKhutbah ? JSON.parse(rawKhutbah) : [];
+        taklimList = rawTaklim ? JSON.parse(rawTaklim) : [];
 
-        if (rawSahabat && rawMitra && rawMasjid && rawDpc) {
-          sahabatDakwahList = JSON.parse(rawSahabat);
-          mitraDakwahList = JSON.parse(rawMitra);
-          masjidBinaanList = JSON.parse(rawMasjid);
-          dpcList = JSON.parse(rawDpc);
-          khutbahJumatList = rawKhutbah ? JSON.parse(rawKhutbah) : DEFAULT_KHUTBAH_LIST.map(i => ({ ...i }));
-          taklimList = rawTaklim ? JSON.parse(rawTaklim) : DEFAULT_TAKLIM_LIST.map(i => ({ ...i, attended_weeks: [...i.attended_weeks] }));
-          return;
+        if (rawDpc) {
+          const parsedDpc = JSON.parse(rawDpc);
+          dpcList = ensureAll12PasangkayuDpcs(parsedDpc);
+        } else {
+          dpcList = buildInitial12PasangkayuDpcs();
         }
+        saveAllDataToLocal();
+        return;
       } catch (err) {
         console.warn('Cache lokal belum tersedia, memuat data awal SIDAK:', err);
       }
 
       kaderMasterList = [];
-      sahabatDakwahList = DEFAULT_SAHABAT_LIST.map(i => ({ ...i }));
-      mitraDakwahList = DEFAULT_MITRA_LIST.map(i => ({ ...i }));
-      masjidBinaanList = DEFAULT_MASJID_LIST.map(i => ({ ...i, programs: { ...i.programs } }));
-      dpcList = DEFAULT_DPC_LIST.map(i => ({
-        ...i,
-        logs_penjajakan: Array.isArray(i.logs_penjajakan) ? i.logs_penjajakan.map(l => ({ ...l })) : []
-      }));
-      khutbahJumatList = DEFAULT_KHUTBAH_LIST.map(i => ({ ...i }));
-      taklimList = DEFAULT_TAKLIM_LIST.map(i => ({ ...i, attended_weeks: [...i.attended_weeks] }));
+      sahabatDakwahList = [];
+      mitraDakwahList = [];
+      masjidBinaanList = [];
+      dpcList = buildInitial12PasangkayuDpcs();
+      khutbahJumatList = [];
+      taklimList = [];
       saveAllDataToLocal();
     }
 
-function getSidakSupabaseConfig() {
-  return {
-    url: (localStorage.getItem(SIDAK_KEYS.SB_URL) || 'https://vxvwhissrlnsrzhtroub.supabase.co').trim(),
-    key: (localStorage.getItem(SIDAK_KEYS.SB_KEY) || 'sb_publishable_ENO0DfITzUgR6idwiZA8gg_yG31sJTU').trim()
-  };
-}
+    function getSidakSupabaseConfig() {
+      return {
+        url: (localStorage.getItem(SIDAK_KEYS.SB_URL) || 'https://vxvwhissrlnsrzhtroub.supabase.co').trim(),
+        key: (localStorage.getItem(SIDAK_KEYS.SB_KEY) || 'sb_publishable_ENO0DfITzUgR6idwiZA8gg_yG31sJTU').trim()
+      };
+    }
 
     function getSidakGithubConfig() {
       return {
@@ -2435,10 +2489,50 @@ function getSidakSupabaseConfig() {
       };
     }
 
+    async function loadSidakDataFromSupabase() {
+      if (!sidakSupabaseClient) return;
+      try {
+        const { data, error } = await sidakSupabaseClient
+          .from(SIDAK_SUPABASE_TABLE)
+          .select('id, tipe_data, payload')
+          .order('id', { ascending: true });
+
+        if (error || !Array.isArray(data) || data.length === 0) return;
+
+        const nextSahabat = [];
+        const nextMitra = [];
+        const nextMasjid = [];
+        const nextDpc = [];
+        const nextKhutbah = [];
+        const nextTaklim = [];
+
+        data.forEach(r => {
+          if (!r || !r.payload) return;
+          if (r.tipe_data === 'sahabat_dakwah') nextSahabat.push(r.payload);
+          else if (r.tipe_data === 'mitra_dakwah') nextMitra.push(r.payload);
+          else if (r.tipe_data === 'masjid_binaan') nextMasjid.push(r.payload);
+          else if (r.tipe_data === 'dpc') nextDpc.push(r.payload);
+          else if (r.tipe_data === 'khutbah_jumat') nextKhutbah.push(r.payload);
+          else if (r.tipe_data === 'taklim') nextTaklim.push(r.payload);
+        });
+
+        if (nextSahabat.length > 0) sahabatDakwahList = nextSahabat;
+        if (nextMitra.length > 0) mitraDakwahList = nextMitra;
+        if (nextMasjid.length > 0) masjidBinaanList = nextMasjid;
+        if (nextDpc.length > 0) dpcList = ensureAll12PasangkayuDpcs(nextDpc);
+        if (nextKhutbah.length > 0) khutbahJumatList = nextKhutbah;
+        if (nextTaklim.length > 0) taklimList = nextTaklim;
+
+        saveAllDataToLocal();
+        refreshAllViews();
+      } catch (err) {
+        console.warn('Memuat data Supabase SIDAK dilewati:', err);
+      }
+    }
+
     async function persistAndDualSync() {
       saveAllDataToLocal();
 
-      // 1. Jika Supabase SIDAK sudah dikonfigurasi, upsert otomatis
       if (sidakSupabaseClient) {
         try {
           const bundle = buildSidakUnifiedBackupPayload();
@@ -2452,7 +2546,6 @@ function getSidakSupabaseConfig() {
         }
       }
 
-      // 2. Jika GitHub Backup sudah dikonfigurasi, auto-backup di latar belakang
       const gh = getSidakGithubConfig();
       if (gh.token && gh.user && gh.repo) {
         syncBackupToGitHub(false);
@@ -2575,7 +2668,7 @@ function getSidakSupabaseConfig() {
         if (nextSahabat.length) sahabatDakwahList = nextSahabat;
         if (nextMitra.length) mitraDakwahList = nextMitra;
         if (nextMasjid.length) masjidBinaanList = nextMasjid;
-        if (nextDpc.length) dpcList = nextDpc;
+        if (nextDpc.length) dpcList = ensureAll12PasangkayuDpcs(nextDpc);
         if (nextKader.length) kaderMasterList = nextKader;
         if (nextKhutbah.length) khutbahJumatList = nextKhutbah;
         if (nextTaklim.length) taklimList = nextTaklim;
@@ -2633,46 +2726,47 @@ function getSidakSupabaseConfig() {
       }
     }
 
-function enterAppWithSession(email, modeLabel) {
-   localStorage.setItem(SIDAK_KEYS.SESSION, JSON.stringify({ email, modeLabel }));
-   document.getElementById('sidebar-user-email').textContent = email;
-   document.getElementById('sidebar-role-text').textContent = modeLabel;
+    function enterAppWithSession(email, modeLabel) {
+      localStorage.setItem(SIDAK_KEYS.SESSION, JSON.stringify({ email, modeLabel }));
+      document.getElementById('sidebar-user-email').textContent = email;
+      document.getElementById('sidebar-role-text').textContent = modeLabel;
 
-   document.getElementById('auth-gate').classList.add('hidden');
-   document.getElementById('app-wrapper').classList.remove('hidden');
+      document.getElementById('auth-gate').classList.add('hidden');
+      document.getElementById('app-wrapper').classList.remove('hidden');
 
-   updateSidebarDualSyncIndicators();
-   navigateTo('dashboard');
+      updateSidebarDualSyncIndicators();
+      navigateTo('dashboard');
 
-   // Tarik kader DPD Pasangkayu secara otomatis & aktifkan listener Real-Time
-   pullExternalKaderNow(true);
-   initExternalKaderRealtime();
- }
+      // Muat data tersimpan dari Supabase SIDAK & tarik kader DPD Pasangkayu secara real-time
+      loadSidakDataFromSupabase();
+      pullExternalKaderNow(true);
+      initExternalKaderRealtime();
+    }
 
-async function handleLoginSubmit(event) {
-  event.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errBox = document.getElementById('login-error-box');
-  errBox.classList.add('hidden');
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errBox = document.getElementById('login-error-box');
+      errBox.classList.add('hidden');
 
-  initSidakSupabase();
-  if (!sidakSupabaseClient) {
-    errBox.textContent = 'Koneksi Supabase SIDAK belum dikonfigurasi pada kode aplikasi.';
-    errBox.classList.remove('hidden');
-    return;
-  }
+      initSidakSupabase();
+      if (!sidakSupabaseClient) {
+        errBox.textContent = 'Koneksi Supabase SIDAK belum dikonfigurasi pada kode aplikasi.';
+        errBox.classList.remove('hidden');
+        return;
+      }
 
-  try {
-    const { data, error } = await sidakSupabaseClient.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    enterAppWithSession(data.user.email, 'Admin Supabase');
-    showToast('Login Supabase berhasil.', 'success');
-  } catch (err) {
-    errBox.textContent = `Login Supabase gagal: ${err.message}`;
-    errBox.classList.remove('hidden');
-  }
-}
+      try {
+        const { data, error } = await sidakSupabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        enterAppWithSession(data.user.email, 'Admin Supabase');
+        showToast('Login Supabase berhasil.', 'success');
+      } catch (err) {
+        errBox.textContent = `Login Supabase gagal: ${err.message}`;
+        errBox.classList.remove('hidden');
+      }
+    }
 
     async function handleLogout() {
       localStorage.removeItem(SIDAK_KEYS.SESSION);
@@ -2740,7 +2834,7 @@ async function handleLoginSubmit(event) {
           pageId: 'page-dpc',
           navId: 'nav-dpc',
           breadcrumb: 'DPC',
-          title: 'Dewan Pengurus Cabang (DPC)'
+          title: 'Dewan Pengurus Cabang (12 Kecamatan)'
         }
       };
 
@@ -2902,7 +2996,7 @@ async function handleLoginSubmit(event) {
       const dpcMasjidCanvas = document.getElementById('chart-dpc-masjid');
       if (dpcMasjidCanvas) {
         chartDpcMasjid = destroyChartSafely(chartDpcMasjid);
-        const dpcLabels = dpcList.map(d => d.nama_dpc);
+        const dpcLabels = dpcList.map(d => d.nama_dpc.replace(/^DPC\s+/i, ''));
         const masjidCounts = dpcList.map(d => getDpcAutoMasjidMetrics(d).totalMasjid);
         const kkiCounts = dpcList.map(d => Number(d.kki_binaan_count) || 0);
 
@@ -2937,7 +3031,7 @@ async function handleLoginSubmit(event) {
       }
     }
 
-// =========================================================================
+    // =========================================================================
     // 8. LAMAN MASTER — DIREKTORI KADER (FILTER DPD PASANGKAYU & REAL-TIME)
     // =========================================================================
     const DEFAULT_SIKAD_EXT_CONFIG = {
@@ -3178,6 +3272,7 @@ async function handleLoginSubmit(event) {
       refreshAllViews();
       showToast('Daftar kader lokal dikosongkan.', 'success');
     }
+
     // =========================================================================
     // 9. LAMAN GSD (SAHABAT DAKWAH & MITRA DAKWAH + AUTO-FILL PIC + EXCEL)
     // =========================================================================
@@ -4007,10 +4102,8 @@ async function handleLoginSubmit(event) {
     }
 
     // =========================================================================
-    // 11. LAMAN DPC (AUTO-MASJID BINAAN, PROGRES 6 SYARAT & SYARAT ALIH STATUS)
+    // 11. LAMAN DPC (12 KECAMATAN PASANGKAYU, AUTO-MASJID & KETUA OPSIONAL)
     // =========================================================================
-
-    // Hitung otomatis jumlah Masjid Binaan & Masjid dengan Taklim aktif dari laman Masjid Binaan
     function getDpcAutoMasjidMetrics(dpcObj) {
       const targetName = String(dpcObj?.nama_dpc || '').trim().toLowerCase();
       const matchedMasjids = masjidBinaanList.filter(
@@ -4025,7 +4118,6 @@ async function handleLoginSubmit(event) {
       };
     }
 
-    // Evaluasi 6 syarat mutlak DPC (Muncul pada SEMUA status: Penjajakan, Eksis, Mandiri)
     function evaluateDpcSixRequirements(dpcObj) {
       const autoMetrics = getDpcAutoMasjidMetrics(dpcObj);
 
@@ -4078,10 +4170,7 @@ async function handleLoginSubmit(event) {
       const completedCount = items.filter(i => i.done).length;
       const pct = Math.round((completedCount / 6) * 100);
 
-      // Syarat naik dari Penjajakan -> Eksis: wajib sudah ada SK Pengurus DAN Markaz DPC
       const canPromoteToEksis = hasSk && hasMarkaz;
-
-      // Syarat naik dari Eksis -> Mandiri: wajib ke-6 syarat telah terpenuhi (6/6)
       const canPromoteToMandiri = completedCount === 6;
 
       return {
@@ -4201,8 +4290,8 @@ async function handleLoginSubmit(event) {
       container.innerHTML = filtered.map((dpc, idx) => {
         const evalData = evaluateDpcSixRequirements(dpc);
         const sixProgressHtml = renderDpcSixProgressHtml(evalData);
+        const hasKetua = Boolean(String(dpc.ketua_dpc || '').trim());
 
-        // Skema warna pembeda tiap kartu DPC agar mudah dibedakan satu sama lain
         let cardFrameClass = 'border-2 border-amber-300/90 border-l-8 border-l-amber-500';
         let headerStripClass = 'bg-gradient-to-r from-amber-50 via-amber-100/60 to-white border-b border-amber-200';
         let indexBadgeClass = 'bg-amber-500 text-white';
@@ -4220,14 +4309,12 @@ async function handleLoginSubmit(event) {
           statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-400">Status: Mandiri</span>`;
         }
 
-        // Notifikasi rekomendasi otomatis bila 6 indikator telah terpenuhi
         const readyMandiriBanner = (dpc.status !== 'Mandiri' && evalData.canPromoteToMandiri)
           ? `<div class="p-3.5 rounded-xl bg-emerald-100 border border-emerald-400 text-emerald-950 text-xs font-extrabold flex flex-wrap items-center justify-between gap-2">
               <span>🎉 Rekomendasi Sistem: "${escapeHtml(dpc.nama_dpc)}" telah memenuhi ke-6 syarat mutlak dan Siap Naik Status ke Mandiri!</span>
              </div>`
           : '';
 
-        // Conditional rendering spesifik berdasarkan status DPC
         let conditionalSectionHtml = '';
 
         if (dpc.status === 'Penjajakan') {
@@ -4244,7 +4331,6 @@ async function handleLoginSubmit(event) {
 
           conditionalSectionHtml = `
             <div class="space-y-4 pt-2">
-              <!-- Daftar Log Aktivitas Penjajakan -->
               <div class="space-y-2">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                   <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-800">Log Aktivitas Penjajakan</h4>
@@ -4266,13 +4352,10 @@ async function handleLoginSubmit(event) {
                 </div>
               </div>
 
-              <!-- Pengisian Syarat Alih Status ke Eksis (Wajib SK Pengurus & Markaz DPC) -->
               <div class="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-sky-900">Syarat Alih Status ke Eksis</h4>
-                    <p class="text-[11px] text-slate-600">Alih status dari Penjajakan ke Eksis baru dapat dilakukan apabila <strong>SK Pengurus</strong> dan <strong>Alamat Markaz DPC</strong> sudah terisi.</p>
-                  </div>
+                <div>
+                  <h4 class="text-xs font-extrabold uppercase tracking-wider text-sky-900">Syarat Alih Status ke Eksis</h4>
+                  <p class="text-[11px] text-slate-600">Alih status dari Penjajakan ke Eksis baru dapat dilakukan apabila <strong>SK Pengurus</strong> dan <strong>Alamat Markaz DPC</strong> sudah terisi.</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -4389,7 +4472,6 @@ async function handleLoginSubmit(event) {
             </div>
           `;
         } else {
-          // Status Mandiri
           conditionalSectionHtml = `
             <div class="pt-2">
               <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
@@ -4417,12 +4499,12 @@ async function handleLoginSubmit(event) {
         return `
           <article class="bg-white rounded-2xl shadow-md overflow-hidden transition-all ${cardFrameClass}">
             <!-- Header Berwarna Pembeda Setiap DPC -->
-            <div class="px-5 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${headerStripClass}">
-              <div class="flex items-start sm:items-center gap-3">
-                <span class="px-2.5 py-1 rounded-xl font-mono text-xs font-extrabold shadow-2xs shrink-0 ${indexBadgeClass}">
+            <div class="px-5 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 ${headerStripClass}">
+              <div class="flex items-start gap-3 flex-1 min-w-0">
+                <span class="px-2.5 py-1 rounded-xl font-mono text-xs font-extrabold shadow-2xs shrink-0 mt-0.5 ${indexBadgeClass}">
                   DPC #${String(idx + 1).padStart(2, '0')}
                 </span>
-                <div>
+                <div class="flex-1 min-w-0">
                   <div class="flex flex-wrap items-center gap-2">
                     <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">${escapeHtml(dpc.nama_dpc)}</h3>
                     ${statusBadge}
@@ -4430,13 +4512,29 @@ async function handleLoginSubmit(event) {
                       🕌 ${evalData.autoMetrics.totalMasjid} Masjid Binaan (Otomatis)
                     </span>
                   </div>
-                  <p class="text-xs text-slate-600 mt-1">
-                    Ketua DPC: <strong class="text-slate-900">${escapeHtml(dpc.ketua_dpc || '-')}</strong>
-                  </p>
+
+                  <!-- Input Langsung Ketua DPC (Bisa Ditambahkan / Diubah Kapan Saja) -->
+                  <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                    <label for="ketua-dpc-input-${escapeHtml(dpc.id)}" class="text-xs font-bold text-slate-700 shrink-0">
+                      Ketua DPC:
+                    </label>
+                    <input
+                      type="text"
+                      id="ketua-dpc-input-${escapeHtml(dpc.id)}"
+                      value="${escapeHtml(dpc.ketua_dpc || '')}"
+                      onchange="updateDpcField('${escapeHtml(dpc.id)}', 'ketua_dpc', this.value.trim())"
+                      placeholder="Belum diisi — ketik nama Ketua DPC di sini..."
+                      class="w-full sm:w-72 px-3 py-1.5 bg-white/95 hover:bg-white focus:bg-white border border-slate-300 focus:border-sky-500 rounded-xl text-xs font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
+                    />
+                    ${hasKetua
+                      ? `<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold">✓ Terisi</span>`
+                      : `<span class="px-2 py-0.5 rounded-md bg-white/80 text-slate-500 border border-slate-200 text-[10px] font-semibold">Dapat ditambahkan nanti</span>`
+                    }
+                  </div>
                 </div>
               </div>
 
-              <button type="button" onclick="confirmDeleteDpc('${escapeHtml(dpc.id)}')" class="self-start sm:self-auto px-3 py-1.5 rounded-xl bg-white hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-bold transition-colors cursor-pointer shrink-0">
+              <button type="button" onclick="confirmDeleteDpc('${escapeHtml(dpc.id)}')" class="self-start lg:self-center px-3 py-1.5 rounded-xl bg-white hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-bold transition-colors cursor-pointer shrink-0">
                 Hapus DPC
               </button>
             </div>
@@ -4456,7 +4554,6 @@ async function handleLoginSubmit(event) {
       }).join('');
     }
 
-    // Tambah DPC Baru (Hanya Nama DPC & Ketua DPC -> Otomatis Penjajakan)
     function openAddDpcModal() {
       document.getElementById('form-add-dpc').reset();
       document.getElementById('modal-add-dpc').classList.remove('hidden');
@@ -4471,8 +4568,8 @@ async function handleLoginSubmit(event) {
       const namaDpc = document.getElementById('dpc-input-nama').value.trim();
       const ketuaDpc = document.getElementById('dpc-input-ketua').value.trim();
 
-      if (!namaDpc || !ketuaDpc) {
-        showToast('Nama DPC dan Ketua DPC wajib diisi.', 'error');
+      if (!namaDpc) {
+        showToast('Nama DPC wajib diisi.', 'error');
         return;
       }
 
@@ -4491,20 +4588,14 @@ async function handleLoginSubmit(event) {
         alamat_markaz: '',
         masjid_markaz: '',
         kki_binaan_count: 0,
-        logs_penjajakan: [
-          {
-            tanggal: new Date().toISOString().slice(0, 10),
-            aktivitas: 'Pembentukan Tim Penjajakan Awal',
-            hasil: `DPC ${namaDpc} resmi didaftarkan dengan Ketua ${ketuaDpc}`
-          }
-        ]
+        logs_penjajakan: []
       };
 
-      dpcList.unshift(newDpc);
+      dpcList.push(newDpc);
       await persistAndDualSync();
       closeAddDpcModal();
       refreshAllViews();
-      showToast(`${namaDpc} berhasil ditambahkan dan otomatis masuk ke kategori Penjajakan.`, 'success');
+      showToast(`${namaDpc} berhasil ditambahkan ke kategori Penjajakan.`, 'success');
     }
 
     async function updateDpcField(dpcId, fieldName, value) {
@@ -4601,12 +4692,9 @@ async function handleLoginSubmit(event) {
     }
 
     // =========================================================================
-    // 12. MODAL KONFIRMASI CUSTOM & INISIALISASI SAAT HALAMAN DIMUAT
-    // =========================================================================
     // 12. LAMAN KHUTBAH JUMAT (KALENDER PEKANAN & IMPORT MASSAL EXCEL)
     // =========================================================================
     const BULAN_ID_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const BULAN_ID_FULL = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
     function formatTanggalJumatId(isoDate) {
       if (!isoDate) return '-';
@@ -4621,7 +4709,6 @@ async function handleLoginSubmit(event) {
     function getAllFridaysInYear(yearNum) {
       const fridays = [];
       const d = new Date(yearNum, 0, 1);
-      // Maju ke hari Jumat pertama pada tahun tersebut (day === 5)
       while (d.getDay() !== 5) {
         d.setDate(d.getDate() + 1);
       }
@@ -4892,7 +4979,6 @@ async function handleLoginSubmit(event) {
         return;
       }
 
-      // Pastikan tanggal diselaraskan ke hari Jumat pada pekan tersebut
       const fridayIso = getFridayOfWeek(new Date(tanggalRaw + 'T00:00:00'));
 
       const entry = {
@@ -5127,7 +5213,6 @@ async function handleLoginSubmit(event) {
         return [];
       }
 
-      // Gunakan Friday anchor tiap pekan sebagai identifier unik pekan kalender
       let cursorFriday = new Date(getFridayOfWeek(startDate) + 'T00:00:00');
       const lastFriday = new Date(getFridayOfWeek(endDate) + 'T00:00:00');
 
@@ -5139,7 +5224,6 @@ async function handleLoginSubmit(event) {
         const dd = String(cursorFriday.getDate()).padStart(2, '0');
         const weekKey = `${yyyy}-${mm}-${dd}`;
 
-        // Hitung rentang Senin - Ahad pekan tersebut
         const mon = new Date(cursorFriday);
         mon.setDate(mon.getDate() - 4);
         const sun = new Date(cursorFriday);
@@ -5355,7 +5439,6 @@ async function handleLoginSubmit(event) {
       });
     }
 
-    // --- Modal Sunting Keaktifan Taklim (Checklist Pekanan & Periode) ---
     function openTaklimKeaktifanModal(taklimId) {
       const item = taklimList.find(t => t.id === taklimId);
       if (!item) return;
@@ -5365,7 +5448,6 @@ async function handleLoginSubmit(event) {
       document.getElementById('keaktifan-modal-meta').textContent =
         `${item.hari}, ${item.pukul} • Pemateri: ${item.pemateri} • Mulai berjalan: ${formatTanggalJumatId(item.tanggal_mulai)}`;
 
-      // Sinkronkan filter periode dari toolbar utama jika sedang diisi
       document.getElementById('modal-keaktifan-start').value = document.getElementById('taklim-period-start')?.value || '';
       document.getElementById('modal-keaktifan-end').value = document.getElementById('taklim-period-end')?.value || '';
 
@@ -5451,6 +5533,31 @@ async function handleLoginSubmit(event) {
       renderTaklimTable();
     }
 
+    async function toggleAllVisibleTaklimWeeks(checkState) {
+      const taklimId = document.getElementById('keaktifan-taklim-id').value;
+      const idx = taklimList.findIndex(t => t.id === taklimId);
+      if (idx === -1) return;
+
+      const pStart = document.getElementById('modal-keaktifan-start').value;
+      const pEnd = document.getElementById('modal-keaktifan-end').value;
+      const stats = calculateTaklimActivityStats(taklimList[idx], pStart, pEnd);
+      const set = new Set(Array.isArray(taklimList[idx].attended_weeks) ? taklimList[idx].attended_weeks : []);
+
+      stats.weeks.forEach(w => {
+        if (checkState) set.add(w.weekKey);
+        else set.delete(w.weekKey);
+      });
+
+      taklimList[idx] = {
+        ...taklimList[idx],
+        attended_weeks: Array.from(set).sort()
+      };
+
+      await persistAndDualSync();
+      renderTaklimKeaktifanChecklist();
+      renderTaklimTable();
+    }
+
     // =========================================================================
     // 14. MODAL KONFIRMASI CUSTOM & INISIALISASI APLIKASI
     // =========================================================================
@@ -5484,7 +5591,7 @@ async function handleLoginSubmit(event) {
       }
     });
 
-document.addEventListener('visibilitychange', () => {
+    document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && localStorage.getItem(SIDAK_KEYS.SESSION)) {
         pullExternalKaderNow(true);
       }
