@@ -2583,6 +2583,62 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       }
     }
 
+    async function loadSidakDataFromSupabase(silent = true) {
+      initSidakSupabase();
+      if (!sidakSupabaseClient) return;
+
+      const sbText = document.getElementById('status-supabase-text');
+      if (sbText) sbText.textContent = 'Memuat data...';
+
+      try {
+        const { data, error } = await sidakSupabaseClient
+          .from(SIDAK_SUPABASE_TABLE)
+          .select('id, tipe_data, payload, updated_at')
+          .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        const nextSahabat = [];
+        const nextMitra = [];
+        const nextMasjid = [];
+        const nextDpc = [];
+        const nextKhutbah = [];
+        const nextTaklim = [];
+
+        (data || []).forEach(r => {
+          if (!r || !r.payload) return;
+          const p = typeof r.payload === 'string' ? JSON.parse(r.payload) : r.payload;
+          if (r.tipe_data === 'sahabat_dakwah') nextSahabat.push(p);
+          else if (r.tipe_data === 'mitra_dakwah') nextMitra.push(p);
+          else if (r.tipe_data === 'masjid_binaan') nextMasjid.push(p);
+          else if (r.tipe_data === 'dpc') nextDpc.push(p);
+          else if (r.tipe_data === 'khutbah_jumat') nextKhutbah.push(p);
+          else if (r.tipe_data === 'taklim') nextTaklim.push(p);
+        });
+
+        sahabatDakwahList = nextSahabat;
+        mitraDakwahList = nextMitra;
+        masjidBinaanList = nextMasjid;
+        dpcList = nextDpc;
+        khutbahJumatList = nextKhutbah;
+        taklimList = nextTaklim;
+
+        saveAllDataToLocal();
+        refreshAllViews();
+        if (sbText) sbText.textContent = 'Terhubung';
+
+        if (!silent) {
+          showToast(`Data SIDAK berhasil dimuat dari Supabase (${(data || []).length} baris).`, 'success');
+        }
+      } catch (err) {
+        console.error('Gagal memuat data SIDAK dari Supabase:', err);
+        if (sbText) sbText.textContent = 'Gagal Muat';
+        if (!silent) {
+          showToast(`Gagal memuat data dari Supabase: ${err.message}`, 'error');
+        }
+      }
+    }
+    
     async function persistAndDualSync() {
       saveAllDataToLocal();
 
@@ -2792,6 +2848,24 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
 
       // Muat data tersimpan dari Supabase SIDAK & tarik kader DPD Pasangkayu secara real-time
       loadSidakDataFromSupabase();
+      function enterAppWithSession(email, modeLabel) {
+   localStorage.setItem(SIDAK_KEYS.SESSION, JSON.stringify({ email, modeLabel }));
+   document.getElementById('sidebar-user-email').textContent = email;
+   document.getElementById('sidebar-role-text').textContent = modeLabel;
+
+   document.getElementById('auth-gate').classList.add('hidden');
+   document.getElementById('app-wrapper').classList.remove('hidden');
+
+   updateSidebarDualSyncIndicators();
+   navigateTo('dashboard');
+
+   // Tarik seluruh data SIDAK (Masjid Binaan, Khutbah Jumat, GSD, DPC, Taklim) dari Supabase
+   loadSidakDataFromSupabase(true);
+
+   // Tarik kader DPD Pasangkayu secara otomatis & aktifkan listener Real-Time
+   pullExternalKaderNow(true);
+   initExternalKaderRealtime();
+ }
       pullExternalKaderNow(true);
       initExternalKaderRealtime();
     }
@@ -5994,10 +6068,11 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
     });
 
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && localStorage.getItem(SIDAK_KEYS.SESSION)) {
-        pullExternalKaderNow(true);
-      }
-    });
+   if (document.visibilityState === 'visible' && localStorage.getItem(SIDAK_KEYS.SESSION)) {
+     loadSidakDataFromSupabase(true);
+     pullExternalKaderNow(true);
+   }
+ });
 
     document.addEventListener('DOMContentLoaded', () => {
       loadAllDataFromLocal();
