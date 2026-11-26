@@ -2633,17 +2633,21 @@ function getSidakSupabaseConfig() {
       }
     }
 
-    function enterAppWithSession(email, modeLabel) {
-      localStorage.setItem(SIDAK_KEYS.SESSION, JSON.stringify({ email, modeLabel }));
-      document.getElementById('sidebar-user-email').textContent = email;
-      document.getElementById('sidebar-role-text').textContent = modeLabel;
+function enterAppWithSession(email, modeLabel) {
+   localStorage.setItem(SIDAK_KEYS.SESSION, JSON.stringify({ email, modeLabel }));
+   document.getElementById('sidebar-user-email').textContent = email;
+   document.getElementById('sidebar-role-text').textContent = modeLabel;
 
-      document.getElementById('auth-gate').classList.add('hidden');
-      document.getElementById('app-wrapper').classList.remove('hidden');
+   document.getElementById('auth-gate').classList.add('hidden');
+   document.getElementById('app-wrapper').classList.remove('hidden');
 
-      updateSidebarDualSyncIndicators();
-      navigateTo('dashboard');
-    }
+   updateSidebarDualSyncIndicators();
+   navigateTo('dashboard');
+
+   // Tarik kader DPD Pasangkayu secara otomatis & aktifkan listener Real-Time
+   pullExternalKaderNow(true);
+   initExternalKaderRealtime();
+ }
 
 async function handleLoginSubmit(event) {
   event.preventDefault();
@@ -2933,9 +2937,43 @@ async function handleLoginSubmit(event) {
       }
     }
 
+// =========================================================================
+    // 8. LAMAN MASTER — DIREKTORI KADER (FILTER DPD PASANGKAYU & REAL-TIME)
     // =========================================================================
-    // 8. LAMAN MASTER — DIREKTORI KADER (KOSONG & SIAP SINKRONISASI EKSTERNAL)
-    // =========================================================================
+    const DEFAULT_SIKAD_EXT_CONFIG = {
+      sbUrl: 'https://zrpfcotcvbnmzvbtwyxr.supabase.co',
+      sbKey: 'sb_publishable_gYCqrPIWJ3a2ZBS-v1-axw_UDwjmVZ5'
+    };
+
+    let extKaderSupabaseClient = null;
+    let extKaderRealtimeChannel = null;
+    let extKaderSyncTimer = null;
+
+    function getExternalKaderConfig() {
+      return {
+        jsonUrl: (localStorage.getItem(SIDAK_KEYS.EXT_KADER_URL) || '').trim(),
+        sbUrl: (localStorage.getItem(SIDAK_KEYS.EXT_KADER_SB_URL) || DEFAULT_SIKAD_EXT_CONFIG.sbUrl).trim(),
+        sbKey: (localStorage.getItem(SIDAK_KEYS.EXT_KADER_SB_KEY) || DEFAULT_SIKAD_EXT_CONFIG.sbKey).trim()
+      };
+    }
+
+    function isDomisiliPasangkayu(payload) {
+      const dpdVal = String(payload?.dpd || '').trim().toLowerCase();
+      return dpdVal === 'dpd pasangkayu' || dpdVal === 'pasangkayu';
+    }
+
+    function updateMasterKaderStatusLabel(text, isLive = false) {
+      const statusEl = document.getElementById('master-kader-source-status');
+      if (!statusEl) return;
+      if (isLive) {
+        statusEl.className = 'inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-700';
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>${escapeHtml(text)}</span>`;
+      } else {
+        statusEl.className = 'text-xs font-semibold text-slate-500';
+        statusEl.textContent = text;
+      }
+    }
+
     function renderMasterKaderTable() {
       const countEl = document.getElementById('master-kader-count');
       const tbody = document.getElementById('master-kader-tbody');
@@ -2971,9 +3009,10 @@ async function handleLoginSubmit(event) {
     }
 
     function openExternalKaderSyncModal() {
-      document.getElementById('ext-kader-json-url').value = localStorage.getItem(SIDAK_KEYS.EXT_KADER_URL) || '';
-      document.getElementById('ext-kader-sb-url').value = localStorage.getItem(SIDAK_KEYS.EXT_KADER_SB_URL) || '';
-      document.getElementById('ext-kader-sb-key').value = localStorage.getItem(SIDAK_KEYS.EXT_KADER_SB_KEY) || '';
+      const cfg = getExternalKaderConfig();
+      document.getElementById('ext-kader-json-url').value = cfg.jsonUrl;
+      document.getElementById('ext-kader-sb-url').value = cfg.sbUrl;
+      document.getElementById('ext-kader-sb-key').value = cfg.sbKey;
       document.getElementById('modal-external-kader').classList.remove('hidden');
     }
 
@@ -2981,77 +3020,164 @@ async function handleLoginSubmit(event) {
       document.getElementById('modal-external-kader').classList.add('hidden');
     }
 
-    async function pullExternalKaderNow() {
-      const jsonUrl = document.getElementById('ext-kader-json-url').value.trim();
-      const sbUrl = document.getElementById('ext-kader-sb-url').value.trim();
-      const sbKey = document.getElementById('ext-kader-sb-key').value.trim();
+    async function pullExternalKaderNow(silent = false) {
+      const jsonInput = document.getElementById('ext-kader-json-url');
+      const sbUrlInput = document.getElementById('ext-kader-sb-url');
+      const sbKeyInput = document.getElementById('ext-kader-sb-key');
 
-      localStorage.setItem(SIDAK_KEYS.EXT_KADER_URL, jsonUrl);
-      localStorage.setItem(SIDAK_KEYS.EXT_KADER_SB_URL, sbUrl);
-      localStorage.setItem(SIDAK_KEYS.EXT_KADER_SB_KEY, sbKey);
+      const isModalOpen = !document.getElementById('modal-external-kader')?.classList.contains('hidden');
+      const cfg = getExternalKaderConfig();
+
+      const jsonUrl = isModalOpen ? jsonInput.value.trim() : cfg.jsonUrl;
+      const sbUrl = isModalOpen ? sbUrlInput.value.trim() : cfg.sbUrl;
+      const sbKey = isModalOpen ? sbKeyInput.value.trim() : cfg.sbKey;
+
+      if (isModalOpen) {
+        localStorage.setItem(SIDAK_KEYS.EXT_KADER_URL, jsonUrl);
+        localStorage.setItem(SIDAK_KEYS.EXT_KADER_SB_URL, sbUrl);
+        localStorage.setItem(SIDAK_KEYS.EXT_KADER_SB_KEY, sbKey);
+      }
 
       try {
         let extracted = [];
-        if (jsonUrl) {
+
+        if (sbUrl && sbKey && window.supabase) {
+          if (!extKaderSupabaseClient || extKaderSupabaseClient.supabaseUrl !== sbUrl) {
+            extKaderSupabaseClient = window.supabase.createClient(sbUrl, sbKey, {
+              auth: { persistSession: false, autoRefreshToken: false }
+            });
+          }
+
+          const { data, error } = await extKaderSupabaseClient
+            .from('data_utama')
+            .select('id, tipe_data, payload')
+            .eq('tipe_data', 'kader')
+            .eq('payload->>dpd', 'DPD Pasangkayu');
+
+          if (error) throw error;
+
+          (data || []).forEach((r, idx) => {
+            const p = typeof r.payload === 'string' ? JSON.parse(r.payload) : (r.payload || {});
+            if (p.nama_lengkap && isDomisiliPasangkayu(p)) {
+              extracted.push({
+                id: p.id_kader || r.id || `KDR-${idx + 1}`,
+                id_kader: p.id_kader || '-',
+                nama_lengkap: p.nama_lengkap,
+                marhalah: p.marhalah || '-',
+                dpd: p.dpd || 'DPD Pasangkayu',
+                dpc: p.dpc || p.dpd || 'DPD Pasangkayu',
+                no_whatsapp: p.no_whatsapp || '-'
+              });
+            }
+          });
+        } else if (jsonUrl) {
           const resp = await fetch(jsonUrl, { cache: 'no-store' });
           if (!resp.ok) throw new Error(`Gagal mengakses URL JSON (HTTP ${resp.status})`);
           const data = await resp.json();
           const rows = Array.isArray(data) ? data : (data.records || []);
           rows.forEach((r, idx) => {
             const p = r.payload ? r.payload : r;
-            if (p && p.nama_lengkap) {
+            if (p && p.nama_lengkap && isDomisiliPasangkayu(p)) {
               extracted.push({
-                id: p.id_kader || `KDR-${idx + 1}`,
+                id: p.id_kader || r.id || `KDR-${idx + 1}`,
                 id_kader: p.id_kader || '-',
                 nama_lengkap: p.nama_lengkap,
                 marhalah: p.marhalah || '-',
-                dpc: p.dpc || p.dpd || '-',
-                no_whatsapp: p.no_whatsapp || '-'
-              });
-            }
-          });
-        } else if (sbUrl && sbKey && window.supabase) {
-          const extClient = window.supabase.createClient(sbUrl, sbKey);
-          const { data, error } = await extClient.from('data_utama').select('id, tipe_data, payload').eq('tipe_data', 'kader');
-          if (error) throw error;
-          (data || []).forEach((r, idx) => {
-            const p = r.payload || {};
-            if (p.nama_lengkap) {
-              extracted.push({
-                id: p.id_kader || `KDR-${idx + 1}`,
-                id_kader: p.id_kader || '-',
-                nama_lengkap: p.nama_lengkap,
-                marhalah: p.marhalah || '-',
-                dpc: p.dpc || p.dpd || '-',
+                dpd: p.dpd || 'DPD Pasangkayu',
+                dpc: p.dpc || p.dpd || 'DPD Pasangkayu',
                 no_whatsapp: p.no_whatsapp || '-'
               });
             }
           });
         } else {
-          showToast('Isi URL JSON GitHub atau URL + Anon Key Supabase kader terlebih dahulu.', 'error');
+          if (!silent) {
+            showToast('Isi URL & Anon Key Supabase SIKAD atau URL JSON terlebih dahulu.', 'error');
+          }
           return;
         }
 
+        extracted.sort((a, b) => String(a.nama_lengkap).localeCompare(String(b.nama_lengkap), 'id'));
         kaderMasterList = extracted;
-        await persistAndDualSync();
-        document.getElementById('master-kader-source-status').textContent = `Status: Tersinkronisasi (${kaderMasterList.length} kader)`;
-        closeExternalKaderSyncModal();
+        saveAllDataToLocal();
+
+        const timeLabel = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        updateMasterKaderStatusLabel(
+          `Real-Time Aktif • DPD Pasangkayu (${kaderMasterList.length} kader • Sinkron ${timeLabel})`,
+          true
+        );
+
+        if (isModalOpen) closeExternalKaderSyncModal();
         refreshAllViews();
-        showToast(`Berhasil menarik ${kaderMasterList.length} data kader untuk auto-fill PIC GSD.`, 'success');
+
+        if (!silent) {
+          showToast(`Berhasil menarik ${kaderMasterList.length} kader domisili DPD Pasangkayu.`, 'success');
+        }
       } catch (err) {
-        showToast(`Gagal menarik data kader: ${err.message}`, 'error');
+        updateMasterKaderStatusLabel(`Gagal sinkronisasi kader: ${err.message}`, false);
+        if (!silent) {
+          showToast(`Gagal menarik data kader: ${err.message}`, 'error');
+        }
       }
+    }
+
+    function initExternalKaderRealtime() {
+      const cfg = getExternalKaderConfig();
+      if (!cfg.sbUrl || !cfg.sbKey || !window.supabase) return;
+
+      if (!extKaderSupabaseClient || extKaderSupabaseClient.supabaseUrl !== cfg.sbUrl) {
+        extKaderSupabaseClient = window.supabase.createClient(cfg.sbUrl, cfg.sbKey, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+      }
+
+      if (extKaderRealtimeChannel) {
+        try {
+          extKaderSupabaseClient.removeChannel(extKaderRealtimeChannel);
+        } catch (_e) {}
+        extKaderRealtimeChannel = null;
+      }
+
+      extKaderRealtimeChannel = extKaderSupabaseClient
+        .channel('sidak-pasangkayu-kader-live')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'data_utama' },
+          (payloadEvent) => {
+            const newRow = payloadEvent.new || {};
+            const oldRow = payloadEvent.old || {};
+            const isKaderChange =
+              newRow.tipe_data === 'kader' ||
+              oldRow.tipe_data === 'kader' ||
+              String(newRow.id || oldRow.id || '').startsWith('KDR-');
+
+            if (!isKaderChange) return;
+
+            clearTimeout(extKaderSyncTimer);
+            extKaderSyncTimer = setTimeout(async () => {
+              await pullExternalKaderNow(true);
+              showToast('Data kader DPD Pasangkayu otomatis diperbarui dari SIKAD.', 'success');
+            }, 400);
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            const timeLabel = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            updateMasterKaderStatusLabel(
+              `Real-Time Terhubung • DPD Pasangkayu (${kaderMasterList.length} kader • ${timeLabel})`,
+              true
+            );
+          }
+        });
     }
 
     async function clearExternalKaderData() {
       kaderMasterList = [];
-      await persistAndDualSync();
-      document.getElementById('master-kader-source-status').textContent = 'Status: Dikosongkan (siap disinkronkan)';
+      saveAllDataToLocal();
+      updateMasterKaderStatusLabel('Status: Dikosongkan sementara', false);
       closeExternalKaderSyncModal();
       refreshAllViews();
-      showToast('Direktori kader telah dikosongkan.', 'success');
+      showToast('Daftar kader lokal dikosongkan.', 'success');
     }
-
     // =========================================================================
     // 9. LAMAN GSD (SAHABAT DAKWAH & MITRA DAKWAH + AUTO-FILL PIC + EXCEL)
     // =========================================================================
@@ -5355,6 +5481,12 @@ async function handleLoginSubmit(event) {
       const mBox = document.getElementById('mitra-pic-suggest');
       if (mPic && mBox && !mPic.contains(event.target) && !mBox.contains(event.target)) {
         mBox.classList.add('hidden');
+      }
+    });
+
+document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && localStorage.getItem(SIDAK_KEYS.SESSION)) {
+        pullExternalKaderNow(true);
       }
     });
 
