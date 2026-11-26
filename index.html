@@ -128,7 +128,7 @@
       <form id="form-login" onsubmit="handleLoginSubmit(event)" class="p-6 sm:p-7 space-y-4">
         <div class="space-y-1">
           <h2 class="text-base font-extrabold text-slate-900">Masuk ke Portal SIDAK</h2>
-          <p class="text-xs text-slate-500">Gunakan akun Supabase Auth Anda atau masuk melalui Mode Demo Lokal.</p>
+          <p class="text-xs text-slate-500">Gunakan akun Supabase Auth terdaftar untuk masuk ke portal SIDAK.</p>
         </div>
 
         <div id="login-error-box" class="hidden p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold leading-relaxed">
@@ -180,19 +180,7 @@
           <span>Masuk ke SIDAK</span>
         </button>
 
-        <div class="relative flex py-1 items-center">
-          <div class="flex-grow border-t border-slate-200"></div>
-          <span class="flex-shrink mx-3 text-[11px] font-semibold text-slate-400">atau akses cepat</span>
-          <div class="flex-grow border-t border-slate-200"></div>
-        </div>
 
-        <button
-          type="button"
-          onclick="loginAsDemoAdmin()"
-          class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
-        >
-          Masuk Mode Demo Lokal (Admin)
-        </button>
       </form>
     </div>
   </div>
@@ -2547,12 +2535,12 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       saveAllDataToLocal();
     }
 
-    function getSidakSupabaseConfig() {
-      return {
-        url: (localStorage.getItem(SIDAK_KEYS.SB_URL) || '').trim(),
-        key: (localStorage.getItem(SIDAK_KEYS.SB_KEY) || '').trim()
-      };
-    }
+function getSidakSupabaseConfig() {
+  return {
+    url: (localStorage.getItem(SIDAK_KEYS.SB_URL) || 'https://TEMPEL_PROJECT_URL_SIDAK.supabase.co').trim(),
+    key: (localStorage.getItem(SIDAK_KEYS.SB_KEY) || 'TEMPEL_ANON_KEY_SIDAK').trim()
+  };
+}
 
     function getSidakGithubConfig() {
       return {
@@ -2848,42 +2836,30 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       navigateTo('dashboard');
     }
 
-    function loginAsDemoAdmin() {
-      enterAppWithSession('admin@sidak-pasangkayu.id', 'Admin Demo Lokal');
-      showToast('Berhasil masuk ke SIDAK DPD Wahdah Islamiyah Pasangkayu.', 'success');
-    }
+async function handleLoginSubmit(event) {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errBox = document.getElementById('login-error-box');
+  errBox.classList.add('hidden');
 
-    async function handleLoginSubmit(event) {
-      event.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      const errBox = document.getElementById('login-error-box');
-      errBox.classList.add('hidden');
+  initSidakSupabase();
+  if (!sidakSupabaseClient) {
+    errBox.textContent = 'Koneksi Supabase SIDAK belum dikonfigurasi pada kode aplikasi.';
+    errBox.classList.remove('hidden');
+    return;
+  }
 
-      initSidakSupabase();
-      if (sidakSupabaseClient) {
-        try {
-          const { data, error } = await sidakSupabaseClient.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          enterAppWithSession(data.user.email, 'Admin Supabase');
-          showToast('Login Supabase berhasil.', 'success');
-          return;
-        } catch (err) {
-          errBox.textContent = `Login Supabase gagal: ${err.message}`;
-          errBox.classList.remove('hidden');
-          return;
-        }
-      }
-
-      // Fallback login jika Supabase belum dikonfigurasi
-      if (email && password.length >= 4) {
-        enterAppWithSession(email, 'Admin Lokal');
-        showToast('Masuk dalam sesi lokal SIDAK.', 'success');
-      } else {
-        errBox.textContent = 'Masukkan email yang valid dan password minimal 4 karakter.';
-        errBox.classList.remove('hidden');
-      }
-    }
+  try {
+    const { data, error } = await sidakSupabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    enterAppWithSession(data.user.email, 'Admin Supabase');
+    showToast('Login Supabase berhasil.', 'success');
+  } catch (err) {
+    errBox.textContent = `Login Supabase gagal: ${err.message}`;
+    errBox.classList.remove('hidden');
+  }
+}
 
     async function handleLogout() {
       localStorage.removeItem(SIDAK_KEYS.SESSION);
