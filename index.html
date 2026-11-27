@@ -298,7 +298,7 @@
               <svg class="w-5 h-5 text-white/90 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              <span>DPC (12 Kec.)</span>
+              <span>DPC</span>
             </button>
           </nav>
         </div>
@@ -421,7 +421,7 @@
                     + Input Data GSD
                   </button>
                   <button type="button" onclick="navigateTo('dpc')" class="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/30 text-xs font-bold transition-colors cursor-pointer">
-                    Kelola 12 DPC
+                    Kelola DPC
                   </button>
                 </div>
               </div>
@@ -584,7 +584,7 @@
                 <div>
                   <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Master — Direktori Kader</h2>
                   <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-                    Data kader domisili DPD Pasangkayu ditarik secara real-time dari proyek Supabase SIKAD untuk rekomendasi auto-fill PIC GSD.
+                    Data kader domisili DPD Pasangkayu ditarik dari proyek Supabase / repositori GitHub SIKAD untuk rekomendasi auto-fill PIC GSD dan Khatib Terjadwal.
                   </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
@@ -601,11 +601,11 @@
               <div class="bg-white rounded-2xl p-5 border border-sky-200 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div class="space-y-1">
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200">Integrasi Auto-Fill PIC GSD</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200">Integrasi Auto-Fill PIC GSD & Khatib</span>
                     <span id="master-kader-source-status" class="text-xs font-semibold text-slate-500">Status: Menunggu sinkronisasi sumber eksternal</span>
                   </div>
                   <p class="text-xs text-slate-600 leading-relaxed">
-                    Setiap kader yang masuk ke Direktori Kader ini otomatis tersedia sebagai <strong>rekomendasi auto-fill Nama Kader Pengajak / PIC</strong> pada tab Sahabat Dakwah dan Mitra Dakwah.
+                    Setiap kader yang masuk ke Direktori Kader ini otomatis tersedia sebagai <strong>rekomendasi auto-fill Nama Kader Pengajak / PIC</strong> pada modul GSD dan <strong>Nama Khatib Terjadwal</strong> pada laman Khutbah Jumat.
                   </p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -655,7 +655,7 @@
                   <div class="space-y-1 max-w-md mx-auto">
                     <h4 class="text-sm font-extrabold text-slate-800">Direktori Kader Belum Terisi</h4>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                      Data ditarik dari proyek Supabase yang terhubung dengan repositori SIKAD Anda. Klik tombol <strong>Konfigurasi & Tarik Data Kader</strong> untuk menyinkronkan secara manual.
+                      Data akan ditarik dari proyek Supabase yang terhubung dengan repositori SIKAD Anda. Klik tombol <strong>Konfigurasi & Tarik Data Kader</strong> untuk menyinkronkan secara manual.
                     </p>
                   </div>
                 </div>
@@ -1233,7 +1233,7 @@
 
         <div class="p-6 space-y-4">
           <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-950 leading-relaxed">
-            Sistem otomatis menyaring kader berdomisili <strong>DPD Pasangkayu</strong> untuk dijadikan rekomendasi auto-fill PIC pada modul GSD.
+            Sistem otomatis menyaring kader berdomisili <strong>DPD Pasangkayu</strong> untuk dijadikan rekomendasi auto-fill PIC pada modul GSD dan Khatib Terjadwal pada laman Khutbah Jumat.
           </div>
 
           <div>
@@ -1884,9 +1884,19 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
+            <div class="relative">
               <label for="khutbah-khatib-utama" class="block text-xs font-bold text-slate-700 mb-1">Nama Khatib Terjadwal <span class="text-rose-500">*</span></label>
-              <input type="text" id="khutbah-khatib-utama" required placeholder="Contoh: Ust. Irfan Hakim, S.Sos.I." class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              <input
+                type="text"
+                id="khutbah-khatib-utama"
+                required
+                autocomplete="off"
+                oninput="handleKhutbahKhatibAutocomplete()"
+                onfocus="handleKhutbahKhatibAutocomplete()"
+                placeholder="Ketik min. 3 huruf nama khatib..."
+                class="w-full px-3.5 py-2.5 bg-sky-50/50 border border-sky-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+              <div id="khutbah-khatib-suggest" class="hidden absolute left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-sky-200 max-h-48 overflow-y-auto z-30 divide-y divide-slate-100"></div>
             </div>
 
             <div>
@@ -2246,15 +2256,9 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       }));
     }
 
-    const DEFAULT_DPC_LIST = buildInitial12PasangkayuDpcs();
-    const DEFAULT_MASJID_LIST = [];
-    const DEFAULT_SAHABAT_LIST = [];
-    const DEFAULT_MITRA_LIST = [];
-
-    // Helper untuk mendapatkan tanggal Jumat pada pekan berjalan
     function getFridayOfWeek(dateObj) {
       const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-      const day = d.getDay(); // 0=Min, 1=Sen, ..., 5=Jum, 6=Sab
+      const day = d.getDay();
       const diffToMonday = day === 0 ? -6 : (1 - day);
       d.setDate(d.getDate() + diffToMonday + 4);
       const yyyy = d.getFullYear();
@@ -2264,9 +2268,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
     }
 
     const CURRENT_WEEK_FRIDAY_ISO = getFridayOfWeek(new Date());
-
-    const DEFAULT_KHUTBAH_LIST = [];
-    const DEFAULT_TAKLIM_LIST = [];
 
     // =========================================================================
     // 3. STATE GLOBAL APLIKASI
@@ -2348,7 +2349,8 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         <span>${escapeHtml(message)}</span>
         <button type="button" class="text-white/75 hover:text-white font-bold px-1 cursor-pointer">&times;</button>
       `;
-      toast.querySelector('button').onclick = () => toast.remove();
+      const closeBtn = toast.querySelector('button');
+      if (closeBtn) closeBtn.onclick = () => toast.remove();
       container.appendChild(toast);
       setTimeout(() => { if (toast.parentNode) toast.remove(); }, 4500);
     }
@@ -2474,7 +2476,9 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
 
       if (cfg.url && cfg.key && cfg.url.startsWith('http') && window.supabase) {
         try {
-          sidakSupabaseClient = window.supabase.createClient(cfg.url, cfg.key);
+          if (!sidakSupabaseClient || sidakSupabaseClient.supabaseUrl !== cfg.url) {
+            sidakSupabaseClient = window.supabase.createClient(cfg.url, cfg.key);
+          }
           if (sbDot) sbDot.className = 'w-2 h-2 rounded-full bg-emerald-300 shrink-0';
           if (sbText) sbText.textContent = 'Terhubung';
           return sidakSupabaseClient;
@@ -2553,35 +2557,38 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         const { data, error } = await sidakSupabaseClient
           .from(SIDAK_SUPABASE_TABLE)
           .select('id, tipe_data, payload, updated_at')
-          .order('id', { ascending: true });
+          .order('updated_at', { ascending: false });
 
         if (error) throw error;
 
-        const nextSahabat = [];
-        const nextMitra = [];
-        const nextMasjid = [];
-        const nextDpc = [];
-        const nextKhutbah = [];
-        const nextTaklim = [];
+        if (Array.isArray(data) && data.length > 0) {
+          const nextSahabat = [];
+          const nextMitra = [];
+          const nextMasjid = [];
+          const nextDpc = [];
+          const nextKhutbah = [];
+          const nextTaklim = [];
 
-        (data || []).forEach(r => {
-          if (!r || !r.payload) return;
-          const p = typeof r.payload === 'string' ? JSON.parse(r.payload) : r.payload;
-          if (r.tipe_data === 'sahabat_dakwah') nextSahabat.push(p);
-          else if (r.tipe_data === 'mitra_dakwah') nextMitra.push(p);
-          else if (r.tipe_data === 'masjid_binaan') nextMasjid.push(p);
-          else if (r.tipe_data === 'dpc') nextDpc.push(p);
-          else if (r.tipe_data === 'khutbah_jumat') nextKhutbah.push(p);
-          else if (r.tipe_data === 'taklim') nextTaklim.push(p);
-        });
+          data.forEach(r => {
+            if (!r || !r.payload) return;
+            const p = typeof r.payload === 'string' ? JSON.parse(r.payload) : r.payload;
+            if (r.tipe_data === 'sahabat_dakwah') nextSahabat.push(p);
+            else if (r.tipe_data === 'mitra_dakwah') nextMitra.push(p);
+            else if (r.tipe_data === 'masjid_binaan') nextMasjid.push(p);
+            else if (r.tipe_data === 'dpc') nextDpc.push(p);
+            else if (r.tipe_data === 'khutbah_jumat') nextKhutbah.push(p);
+            else if (r.tipe_data === 'taklim') nextTaklim.push(p);
+          });
 
-        if (nextSahabat.length > 0) sahabatDakwahList = nextSahabat;
-        if (nextMitra.length > 0) mitraDakwahList = nextMitra;
-        if (nextMasjid.length > 0) masjidBinaanList = nextMasjid;
-        // Pastikan seluruh 12 DPC kecamatan Kabupaten Pasangkayu tetap terdaftar dengan status awal Penjajakan
-        dpcList = ensureAll12PasangkayuDpcs(nextDpc.length > 0 ? nextDpc : dpcList);
-        if (nextKhutbah.length > 0) khutbahJumatList = nextKhutbah;
-        if (nextTaklim.length > 0) taklimList = nextTaklim;
+          sahabatDakwahList = nextSahabat;
+          mitraDakwahList = nextMitra;
+          masjidBinaanList = nextMasjid;
+          dpcList = ensureAll12PasangkayuDpcs(nextDpc.length > 0 ? nextDpc : dpcList);
+          khutbahJumatList = nextKhutbah;
+          taklimList = nextTaklim;
+        } else {
+          dpcList = ensureAll12PasangkayuDpcs(dpcList);
+        }
 
         saveAllDataToLocal();
         refreshAllViews();
@@ -2591,8 +2598,11 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
           showToast(`Data SIDAK berhasil dimuat dari Supabase (${(data || []).length} baris).`, 'success');
         }
       } catch (err) {
-        console.warn('Memuat data Supabase SIDAK dilewati:', err);
+        console.warn('Memuat data SIDAK dari Supabase dilewati:', err);
         if (sbText) sbText.textContent = 'Lokal / Siap';
+        if (!silent) {
+          showToast(`Gagal memuat data dari Supabase: ${err.message}`, 'error');
+        }
       }
     }
 
@@ -2615,6 +2625,18 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       const gh = getSidakGithubConfig();
       if (gh.token && gh.user && gh.repo) {
         syncBackupToGitHub(false);
+      }
+    }
+
+    async function deleteRecordFromSupabase(recordId) {
+      if (!sidakSupabaseClient || !recordId) return;
+      try {
+        await sidakSupabaseClient
+          .from(SIDAK_SUPABASE_TABLE)
+          .delete()
+          .eq('id', recordId);
+      } catch (err) {
+        console.warn('Gagal menghapus baris di Supabase SIDAK:', err);
       }
     }
 
@@ -2774,6 +2796,7 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
 
       updateSidebarDualSyncIndicators();
       closeDualSyncSettingsModal();
+      await loadSidakDataFromSupabase(false);
       showToast('Pengaturan Supabase & GitHub SIDAK berhasil disimpan.', 'success');
     }
 
@@ -2803,7 +2826,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       updateSidebarDualSyncIndicators();
       navigateTo('dashboard');
 
-      // Muat data tersimpan dari Supabase SIDAK & tarik kader DPD Pasangkayu secara real-time
       loadSidakDataFromSupabase(true);
       pullExternalKaderNow(true);
       initExternalKaderRealtime();
@@ -3643,6 +3665,7 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
           } else {
             mitraDakwahList = mitraDakwahList.filter(m => m.id !== id);
           }
+          await deleteRecordFromSupabase(id);
           await persistAndDualSync();
           refreshAllViews();
           showToast('Data berhasil dihapus.', 'success');
@@ -4047,7 +4070,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
 
       masjidBinaanList.unshift(newMasjid);
 
-      // Tautkan jadwal Khutbah Jumat dengan nama masjid yang sama ke ID Masjid Binaan baru
       const targetNorm = nama.toLowerCase();
       khutbahJumatList = khutbahJumatList.map(k =>
         String(k.nama_masjid || '').trim().toLowerCase() === targetNorm
@@ -4092,7 +4114,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         if (!rawName) return;
         const normName = rawName.toLowerCase();
 
-        // Lewati jika sudah terdaftar di Masjid Binaan
         if ((item.masjid_id && existingIds.has(String(item.masjid_id).trim())) || existingNames.has(normName)) {
           return;
         }
@@ -4457,6 +4478,7 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         confirmText: 'Ya, Hapus Masjid',
         onConfirm: async () => {
           masjidBinaanList = masjidBinaanList.filter(item => item.id !== masjidId);
+          await deleteRecordFromSupabase(masjidId);
           await persistAndDualSync();
           closeMasjidDrawer();
           refreshAllViews();
@@ -4886,15 +4908,15 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
                       type="text"
                       id="ketua-dpc-input-${escapeHtml(dpc.id)}"
                       value="${escapeHtml(dpc.ketua_dpc || '')}"
-                      onkeydown="if (event.key === 'Enter') { event.preventDefault(); saveDpcKetuaFromInput('${escapeHtml(dpc.id)}'); }"
                       onchange="updateDpcField('${escapeHtml(dpc.id)}', 'ketua_dpc', this.value.trim())"
+                      onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}"
                       placeholder="Belum diisi — ketik nama Ketua DPC di sini..."
                       class="w-full sm:w-72 px-3 py-1.5 bg-white/95 hover:bg-white focus:bg-white border border-slate-300 focus:border-sky-500 rounded-xl text-xs font-bold text-slate-900 placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all"
                     />
                     <button
                       type="button"
-                      onclick="saveDpcKetuaFromInput('${escapeHtml(dpc.id)}')"
-                      class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold shadow-2xs transition-colors cursor-pointer"
+                      onclick="saveDpcKetuaButton('${escapeHtml(dpc.id)}')"
+                      class="px-2.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold shadow-2xs transition-colors cursor-pointer"
                     >
                       Simpan Ketua
                     </button>
@@ -4924,6 +4946,12 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
           </article>
         `;
       }).join('');
+    }
+
+    function saveDpcKetuaButton(dpcId) {
+      const inputEl = document.getElementById(`ketua-dpc-input-${dpcId}`);
+      if (!inputEl) return;
+      updateDpcField(dpcId, 'ketua_dpc', inputEl.value.trim());
     }
 
     function openAddDpcModal() {
@@ -4982,12 +5010,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       await persistAndDualSync();
       refreshAllViews();
       showToast('Data kelengkapan DPC diperbarui.', 'success');
-    }
-
-    async function saveDpcKetuaFromInput(dpcId) {
-      const inputEl = document.getElementById(`ketua-dpc-input-${dpcId}`);
-      if (!inputEl) return;
-      await updateDpcField(dpcId, 'ketua_dpc', inputEl.value.trim());
     }
 
     async function promoteDpcStatus(dpcId, targetStatus) {
@@ -5062,6 +5084,7 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         confirmText: 'Ya, Hapus DPC',
         onConfirm: async () => {
           dpcList = dpcList.filter(d => d.id !== dpcId);
+          await deleteRecordFromSupabase(dpcId);
           await persistAndDualSync();
           refreshAllViews();
           showToast(`${dpc.nama_dpc} berhasil dihapus.`, 'success');
@@ -5229,6 +5252,10 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         }
       }
 
+      const existingMasjidNames = new Set(
+        masjidBinaanList.map(m => String(m.nama_masjid || '').trim().toLowerCase()).filter(Boolean)
+      );
+
       const filtered = khutbahJumatList
         .filter(item => {
           const itemFriday = item.tanggal ? getFridayOfWeek(new Date(item.tanggal + 'T00:00:00')) : '';
@@ -5249,15 +5276,13 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       }
 
       emptyEl.classList.add('hidden');
-      const registeredMasjidNames = new Set(
-        masjidBinaanList.map(m => String(m.nama_masjid || '').trim().toLowerCase())
-      );
-
       tbody.innerHTML = filtered.map((item, idx) => {
-        const isMasjidBinaan = registeredMasjidNames.has(String(item.nama_masjid || '').trim().toLowerCase());
-        const binaanStatusBadge = isMasjidBinaan
-          ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-sky-100 text-sky-800 border border-sky-200">✓ Masjid Binaan</span>`
-          : `<button type="button" onclick="navigateTo('masjid')" title="Klik untuk melihat rekomendasi di laman Masjid Binaan" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 cursor-pointer">💡 Rekomendasi Binaan &rarr;</button>`;
+        const isRegisteredBinaan = existingMasjidNames.has(String(item.nama_masjid || '').trim().toLowerCase());
+        const recTag = !isRegisteredBinaan
+          ? `<button type="button" onclick="navigateTo('masjid')" title="Klik untuk melihat rekomendasi di laman Masjid Binaan" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 mt-1 ml-1 cursor-pointer">
+              💡 Rekomendasi Binaan
+             </button>`
+          : '';
 
         const gmapsHtml = item.gmaps
           ? `<a href="${escapeHtml(item.gmaps)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-[11px] font-bold">
@@ -5270,11 +5295,11 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
             <td class="py-3.5 px-4 font-mono text-xs text-slate-500">${idx + 1}</td>
             <td class="py-3.5 px-4">
               <div class="font-extrabold text-slate-900">${escapeHtml(item.nama_masjid)}</div>
-              <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <div class="flex flex-wrap items-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200 mt-1">
                   ${escapeHtml(item.wilayah_dpc || '-')}
                 </span>
-                ${binaanStatusBadge}
+                ${recTag}
               </div>
             </td>
             <td class="py-3.5 px-4 whitespace-nowrap">
@@ -5351,8 +5376,52 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       }
     }
 
+    function handleKhutbahKhatibAutocomplete() {
+      const inputEl = document.getElementById('khutbah-khatib-utama');
+      const boxEl = document.getElementById('khutbah-khatib-suggest');
+      if (!inputEl || !boxEl) return;
+
+      const q = inputEl.value.trim().toLowerCase();
+      if (q.length < 3) {
+        boxEl.classList.add('hidden');
+        return;
+      }
+
+      if (kaderMasterList.length === 0) {
+        boxEl.innerHTML = `<div class="px-3.5 py-2.5 text-[11px] text-slate-500 italic">Direktori Kader di laman Master masih kosong. Silakan tarik data kader atau ketik nama khatib secara manual.</div>`;
+        boxEl.classList.remove('hidden');
+        return;
+      }
+
+      const matches = kaderMasterList.filter(k =>
+        (k.nama_lengkap || '').toLowerCase().includes(q) ||
+        (k.id_kader || '').toLowerCase().includes(q) ||
+        (k.dpc || '').toLowerCase().includes(q)
+      ).slice(0, 10);
+
+      if (matches.length === 0) {
+        boxEl.innerHTML = `<div class="px-3.5 py-2.5 text-[11px] text-slate-500 italic">Nama kader tidak ditemukan di Master — Direktori Kader.</div>`;
+      } else {
+        boxEl.innerHTML = matches.map(k => `
+          <button type="button" onclick="selectKhutbahKhatibSuggestion('${escapeHtml(k.nama_lengkap)}')" class="w-full text-left px-3.5 py-2 hover:bg-sky-50 transition-colors cursor-pointer">
+            <span class="text-xs font-extrabold text-sky-900 block">${escapeHtml(k.nama_lengkap)}</span>
+            <span class="text-[10px] text-slate-500">${escapeHtml(k.id_kader || '-')} • ${escapeHtml(k.marhalah || '-')} • ${escapeHtml(k.dpc || '-')}</span>
+          </button>
+        `).join('');
+      }
+      boxEl.classList.remove('hidden');
+    }
+
+    function selectKhutbahKhatibSuggestion(namaKader) {
+      const inputEl = document.getElementById('khutbah-khatib-utama');
+      const boxEl = document.getElementById('khutbah-khatib-suggest');
+      if (inputEl) inputEl.value = namaKader;
+      if (boxEl) boxEl.classList.add('hidden');
+    }
+
     function openKhutbahFormModal(editId = null) {
       document.getElementById('form-khutbah').reset();
+      document.getElementById('khutbah-khatib-suggest')?.classList.add('hidden');
       populateKhutbahMasjidDropdown();
 
       if (editId) {
@@ -5424,10 +5493,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
         if (matchedMasjid) {
           showToast(`Jadwal Khutbah Jumat (${formatTanggalJumatId(fridayIso)}) berhasil ditambahkan.`, 'success');
         } else {
-          // Pastikan masjid baru langsung tampil di panel rekomendasi Masjid Binaan
-          const dismissed = getDismissedMasjidRecsSet();
-          dismissed.delete(entry.nama_masjid.trim().toLowerCase());
-          saveDismissedMasjidRecsSet(dismissed);
           showToast(`Jadwal Khutbah Jumat disimpan. "${entry.nama_masjid}" direkomendasikan pada laman Masjid Binaan.`, 'success');
         }
       }
@@ -5435,18 +5500,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       await persistAndDualSync();
       closeKhutbahFormModal();
       refreshAllViews();
-    }
-
-    async function deleteRecordFromSupabase(recordId) {
-      if (!sidakSupabaseClient || !recordId) return;
-      try {
-        await sidakSupabaseClient
-          .from(SIDAK_SUPABASE_TABLE)
-          .delete()
-          .eq('id', recordId);
-      } catch (err) {
-        console.warn('Gagal menghapus baris di Supabase SIDAK:', err);
-      }
     }
 
     function confirmDeleteKhutbah(id) {
@@ -5613,12 +5666,6 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
     async function executeKhutbahBulkImport() {
       const validItems = khutbahBulkParsedRows.filter(r => r.valid).map(r => r.payload);
       if (validItems.length === 0) return;
-
-      const dismissed = getDismissedMasjidRecsSet();
-      validItems.forEach(item => {
-        if (item.nama_masjid) dismissed.delete(item.nama_masjid.trim().toLowerCase());
-      });
-      saveDismissedMasjidRecsSet(dismissed);
 
       khutbahJumatList = [...validItems.reverse(), ...khutbahJumatList];
       await persistAndDualSync();
@@ -6039,6 +6086,12 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       const mBox = document.getElementById('mitra-pic-suggest');
       if (mPic && mBox && !mPic.contains(event.target) && !mBox.contains(event.target)) {
         mBox.classList.add('hidden');
+      }
+
+      const kInput = document.getElementById('khutbah-khatib-utama');
+      const kBox = document.getElementById('khutbah-khatib-suggest');
+      if (kInput && kBox && !kInput.contains(event.target) && !kBox.contains(event.target)) {
+        kBox.classList.add('hidden');
       }
     });
 
