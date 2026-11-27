@@ -969,6 +969,13 @@
                     <span>Unduh Excel</span>
                   </button>
 
+                  <button type="button" onclick="openKhutbahJpgExportModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-colors cursor-pointer">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Ekspor JPG</span>
+                  </button>
+
                   <button type="button" onclick="openKhutbahBulkModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer">
                     <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1994,6 +2001,99 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
           <button type="button" id="btn-execute-khutbah-bulk" onclick="executeKhutbahBulkImport()" disabled class="px-5 py-2 rounded-xl bg-sky-emerald-gradient disabled:opacity-40 text-white text-xs font-extrabold cursor-pointer">
             Impor Jadwal Valid
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 11B: EKSPOR POSTER JADWAL KHUTBAH JUMAT (JPG PERSEGI 1080x1080)   -->
+  <!-- ======================================================================= -->
+  <div id="modal-khutbah-jpg" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="min-h-screen px-4 py-6 flex items-center justify-center">
+      <div onclick="closeKhutbahJpgExportModal()" class="fixed inset-0 bg-slate-900/65 backdrop-blur-xs"></div>
+
+      <div class="relative bg-white rounded-2xl max-w-5xl w-full shadow-2xl border border-sky-200 overflow-hidden z-10">
+        <div class="bg-sky-emerald-gradient px-6 py-4 text-white flex items-center justify-between gap-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold">Ekspor Poster Jadwal Khutbah Jumat (JPG Persegi 1:1)</h3>
+            <p class="text-xs text-sky-50">Resolusi HD 1080 &times; 1080 px dengan bingkai resmi DPD Wahdah Islamiyah Pasangkayu</p>
+          </div>
+          <button type="button" onclick="closeKhutbahJpgExportModal()" class="p-2 rounded-xl text-white/80 hover:bg-white/15 cursor-pointer">&times;</button>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start max-h-[84vh] overflow-y-auto">
+          <!-- Kolom Pengaturan Poster -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-3">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-sky-900">Pengaturan Konten Poster</h4>
+
+              <div>
+                <label for="jpg-poster-title" class="block text-xs font-bold text-slate-700 mb-1">Judul Utama Poster</label>
+                <input type="text" id="jpg-poster-title" value="JADWAL KHUTBAH JUMAT" oninput="renderKhutbahJpgCanvas()" class="w-full px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              </div>
+
+              <div>
+                <label for="jpg-poster-subtitle" class="block text-xs font-bold text-slate-700 mb-1">Keterangan Tanggal / Pekan</label>
+                <input type="text" id="jpg-poster-subtitle" oninput="renderKhutbahJpgCanvas()" placeholder="Contoh: Jumat, 27 Nov 2026" class="w-full px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              </div>
+
+              <div>
+                <label for="jpg-poster-dpc-filter" class="block text-xs font-bold text-slate-700 mb-1">Filter Wilayah DPC</label>
+                <select id="jpg-poster-dpc-filter" onchange="resetJpgSlideAndRender()" class="w-full px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                  <option value="ALL">Semua Wilayah DPC (Sesuai Jadwal Aktif)</option>
+                </select>
+              </div>
+
+              <div class="space-y-2 pt-1">
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <input type="checkbox" id="jpg-show-pengganti" checked onchange="renderKhutbahJpgCanvas()" class="w-4 h-4 accent-sky-600 rounded" />
+                  <span>Tampilkan Khatib Pengganti (jika ada)</span>
+                </label>
+
+                <label class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <input type="checkbox" id="jpg-show-alamat" onchange="renderKhutbahJpgCanvas()" class="w-4 h-4 accent-sky-600 rounded" />
+                  <span>Tampilkan Alamat Masjid di bawah nama masjid</span>
+                </label>
+              </div>
+
+              <div>
+                <label for="jpg-footer-text" class="block text-xs font-bold text-slate-700 mb-1">Teks Footer Media Sosial</label>
+                <input type="text" id="jpg-footer-text" value="Wahdah Islamiyah Pasangkayu" oninput="renderKhutbahJpgCanvas()" class="w-full px-3 py-2 bg-white border border-sky-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500" />
+              </div>
+            </div>
+
+            <!-- Kontrol Halaman / Slide Jika Jadwal Banyak -->
+            <div id="jpg-pagination-box" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
+              <span class="text-xs font-extrabold text-amber-950">
+                Slide <span id="jpg-page-indicator">1 / 1</span> (<span id="jpg-total-items-count">0</span> masjid)
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="changeKhutbahJpgSlide(-1)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold cursor-pointer">&larr; Prev</button>
+                <button type="button" onclick="changeKhutbahJpgSlide(1)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold cursor-pointer">Next &rarr;</button>
+              </div>
+            </div>
+
+            <!-- Tombol Unduh JPG -->
+            <div class="space-y-2">
+              <button type="button" onclick="downloadKhutbahJpgCurrentSlide()" class="w-full py-3 px-4 rounded-xl bg-sky-emerald-gradient bg-sky-emerald-gradient-hover text-white font-extrabold text-xs sm:text-sm shadow-md inline-flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Unduh JPG Persegi (1080 &times; 1080)</span>
+              </button>
+
+              <button type="button" id="btn-download-all-jpg-slides" onclick="downloadAllKhutbahJpgSlides()" class="hidden w-full py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-xs cursor-pointer">
+                Unduh Semua Slide JPG Sekaligus
+              </button>
+            </div>
+          </div>
+
+          <!-- Kolom Pratinjau Langsung Canvas Persegi -->
+          <div class="lg:col-span-7 bg-slate-100/90 rounded-2xl p-4 sm:p-5 border border-slate-200 flex flex-col items-center justify-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5">Pratinjau Hasil Ekspor JPG (1 : 1)</span>
+            <canvas id="khutbah-jpg-canvas" width="1080" height="1080" class="w-full max-w-[460px] aspect-square rounded-2xl shadow-xl border border-sky-200 bg-white"></canvas>
+          </div>
         </div>
       </div>
     </div>
@@ -5697,6 +5797,680 @@ CREATE POLICY "Akses SIDAK Pasangkayu" ON public.sidak_data_utama
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Jadwal_Khutbah_Jumat');
       XLSX.writeFile(wb, 'SIDAK_Jadwal_Khutbah_Jumat_Pasangkayu.xlsx');
       showToast('Jadwal Khutbah Jumat berhasil diunduh.', 'success');
+    }
+
+    // =========================================================================
+    // 12B. EKSPOR POSTER JADWAL KHUTBAH JUMAT (JPG PERSEGI 1080x1080)
+    // =========================================================================
+    let khutbahJpgCurrentSlide = 0;
+    let cachedSafeLogoImage = null;
+    const JPG_ITEMS_PER_SLIDE = 8;
+
+    function preloadSafeLogoForCanvas() {
+      if (cachedSafeLogoImage) return;
+      const img = new Image();
+      img.onload = function () {
+        try {
+          const testCanvas = document.createElement('canvas');
+          testCanvas.width = 8;
+          testCanvas.height = 8;
+          const tctx = testCanvas.getContext('2d');
+          tctx.drawImage(img, 0, 0, 8, 8);
+          testCanvas.toDataURL('image/png');
+          cachedSafeLogoImage = img;
+          if (!document.getElementById('modal-khutbah-jpg')?.classList.contains('hidden')) {
+            renderKhutbahJpgCanvas();
+          }
+        } catch (_e) {
+          cachedSafeLogoImage = null;
+        }
+      };
+      img.src = 'logo.png';
+    }
+
+    function getKhutbahActiveItemsForPoster() {
+      const targetFridays = getActiveKhutbahTargetFridays();
+      const q = (document.getElementById('search-khutbah')?.value || '').trim().toLowerCase();
+      const dpcFilter = document.getElementById('jpg-poster-dpc-filter')?.value || 'ALL';
+
+      return khutbahJumatList
+        .filter(item => {
+          const itemFriday = item.tanggal ? getFridayOfWeek(new Date(item.tanggal + 'T00:00:00')) : '';
+          const matchWeek = targetFridays.includes(item.tanggal) || targetFridays.includes(itemFriday);
+          const matchDpc = dpcFilter === 'ALL' || (item.wilayah_dpc || '') === dpcFilter;
+          const matchQ = !q ||
+            (item.nama_masjid || '').toLowerCase().includes(q) ||
+            (item.wilayah_dpc || '').toLowerCase().includes(q) ||
+            (item.khatib_utama || '').toLowerCase().includes(q) ||
+            (item.khatib_pengganti || '').toLowerCase().includes(q);
+          return matchWeek && matchDpc && matchQ;
+        })
+        .sort((a, b) => String(a.tanggal).localeCompare(String(b.tanggal)));
+    }
+
+    function openKhutbahJpgExportModal() {
+      preloadSafeLogoForCanvas();
+      khutbahJpgCurrentSlide = 0;
+
+      const dpcSel = document.getElementById('jpg-poster-dpc-filter');
+      if (dpcSel) {
+        const dpcNames = dpcList.map(d => d.nama_dpc);
+        dpcSel.innerHTML = `<option value="ALL">Semua Wilayah DPC (Sesuai Jadwal Aktif)</option>` +
+          dpcNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+      }
+
+      const targetFridays = getActiveKhutbahTargetFridays();
+      const subInput = document.getElementById('jpg-poster-subtitle');
+      if (subInput) {
+        if (selectedKhutbahWeeks.length > 0) {
+          subInput.value = [...selectedKhutbahWeeks].sort().map(d => `Jumat, ${formatTanggalJumatId(d)}`).join(' • ');
+        } else {
+          subInput.value = `Jumat, ${formatTanggalJumatId(targetFridays[0] || CURRENT_WEEK_FRIDAY_ISO)}`;
+        }
+      }
+
+      document.getElementById('modal-khutbah-jpg').classList.remove('hidden');
+      renderKhutbahJpgCanvas();
+    }
+
+    function closeKhutbahJpgExportModal() {
+      document.getElementById('modal-khutbah-jpg').classList.add('hidden');
+    }
+
+    function resetJpgSlideAndRender() {
+      khutbahJpgCurrentSlide = 0;
+      renderKhutbahJpgCanvas();
+    }
+
+    function changeKhutbahJpgSlide(delta) {
+      const items = getKhutbahActiveItemsForPoster();
+      const totalSlides = Math.max(1, Math.ceil(items.length / JPG_ITEMS_PER_SLIDE));
+      khutbahJpgCurrentSlide = (khutbahJpgCurrentSlide + delta + totalSlides) % totalSlides;
+      renderKhutbahJpgCanvas();
+    }
+
+    function drawCanvasRoundedRect(ctx, x, y, w, h, r) {
+      const radius = Math.min(r, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + w, y, x + w, y + h, radius);
+      ctx.arcTo(x + w, y + h, x, y + h, radius);
+      ctx.arcTo(x, y + h, x, y, radius);
+      ctx.arcTo(x, y, x + w, y, radius);
+      ctx.closePath();
+    }
+
+    function wrapCanvasText(ctx, text, maxWidth, maxLines = 2) {
+      const words = String(text || '').split(/\s+/).filter(Boolean);
+      if (words.length === 0) return [''];
+      const lines = [];
+      let currentLine = words[0];
+
+      for (let i = 1; i < words.length; i++) {
+        const testLine = currentLine + ' ' + words[i];
+        if (ctx.measureText(testLine).width <= maxWidth) {
+          currentLine = testLine;
+        } else {
+          lines.push(currentLine);
+          currentLine = words[i];
+          if (lines.length >= maxLines) break;
+        }
+      }
+      if (lines.length < maxLines) {
+        lines.push(currentLine);
+      } else if (lines.length === maxLines) {
+        let last = lines[maxLines - 1];
+        while (last.length > 3 && ctx.measureText(last + '...').width > maxWidth) {
+          last = last.slice(0, -1);
+        }
+        if (words.join(' ') !== lines.join(' ')) {
+          lines[maxLines - 1] = last + '...';
+        }
+      }
+      return lines;
+    }
+
+    function drawWahdahVectorEmblem(ctx, cx, cy, r) {
+      ctx.save();
+      // Lingkaran dasar gradasi langit & hijau Wahdah
+      const bgGrad = ctx.createRadialGradient(cx, cy - r * 0.2, r * 0.1, cx, cy, r);
+      bgGrad.addColorStop(0, '#e0f2fe');
+      bgGrad.addColorStop(0.65, '#bae6fd');
+      bgGrad.addColorStop(1, '#10b981');
+      ctx.fillStyle = bgGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#0e859e';
+      ctx.stroke();
+
+      // Garis lintang & bujur bola dunia
+      ctx.strokeStyle = 'rgba(14, 133, 158, 0.35)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, r * 0.55, r * 0.95, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - r * 0.92, cy);
+      ctx.lineTo(cx + r * 0.92, cy);
+      ctx.stroke();
+
+      // Menara hijau di tengah
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(cx - r * 0.11, cy - r * 0.55, r * 0.22, r * 1.15);
+      // Kubah & puncak menara
+      ctx.beginPath();
+      ctx.moveTo(cx - r * 0.16, cy - r * 0.55);
+      ctx.lineTo(cx, cy - r * 0.88);
+      ctx.lineTo(cx + r * 0.16, cy - r * 0.55);
+      ctx.closePath();
+      ctx.fill();
+
+      // Pita bawah emas
+      ctx.fillStyle = '#dfa217';
+      drawCanvasRoundedRect(ctx, cx - r * 0.72, cy + r * 0.55, r * 1.44, r * 0.28, 6);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawSidakFrameTemplate(ctx, size, footerText) {
+      // 1. Latar Belakang Putih Keabuan Bertekstur Lipatan Kertas Halus
+      ctx.fillStyle = '#f6f7f9';
+      ctx.fillRect(0, 0, size, size);
+
+      const crease1 = ctx.createLinearGradient(0, 180, 920, 860);
+      crease1.addColorStop(0, 'rgba(255, 255, 255, 0)');
+      crease1.addColorStop(0.46, 'rgba(203, 213, 225, 0.30)');
+      crease1.addColorStop(0.52, 'rgba(255, 255, 255, 0.85)');
+      crease1.addColorStop(1, 'rgba(226, 232, 240, 0.20)');
+      ctx.fillStyle = crease1;
+      ctx.fillRect(0, 0, size, size);
+
+      const crease2 = ctx.createLinearGradient(760, 0, 620, 1080);
+      crease2.addColorStop(0, 'rgba(203, 213, 225, 0.24)');
+      crease2.addColorStop(0.5, 'rgba(255, 255, 255, 0.75)');
+      crease2.addColorStop(1, 'rgba(203, 213, 225, 0.22)');
+      ctx.fillStyle = crease2;
+      ctx.fillRect(0, 0, size, size);
+
+      // 2. Ornamen Lengkung Pojok Kiri Atas (Merah, Teal, Biru Muda)
+      ctx.save();
+      ctx.fillStyle = '#d32027';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(255, 0);
+      ctx.quadraticCurveTo(85, 65, 0, 225);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(222, 0);
+      ctx.quadraticCurveTo(68, 56, 0, 192);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#0e859e';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(192, 0);
+      ctx.quadraticCurveTo(55, 48, 0, 162);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(148, 0);
+      ctx.quadraticCurveTo(42, 36, 0, 124);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#68c7da';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(132, 0);
+      ctx.quadraticCurveTo(36, 30, 0, 108);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(84, 0);
+      ctx.quadraticCurveTo(22, 18, 0, 68);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 3. Ornamen Lengkung Pojok Kanan Bawah (Emas, Cyan, Teal)
+      ctx.save();
+      ctx.fillStyle = '#dfa217';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(825, size);
+      ctx.quadraticCurveTo(895, 860, size, 725);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(862, size);
+      ctx.quadraticCurveTo(925, 895, size, 775);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#2cb7d3';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(895, size);
+      ctx.quadraticCurveTo(950, 920, size, 815);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(942, size);
+      ctx.quadraticCurveTo(985, 955, size, 865);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#0e859e';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(958, size);
+      ctx.quadraticCurveTo(998, 970, size, 885);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(size, size);
+      ctx.lineTo(1012, size);
+      ctx.quadraticCurveTo(1038, 1015, size, 960);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 4. Lingkaran Polka-Dot Teal di Kiri Tengah
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(16, 355, 118, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = '#0e859e';
+      for (let gx = -110; gx <= 145; gx += 13) {
+        for (let gy = 230; gy <= 480; gy += 13) {
+          ctx.beginPath();
+          ctx.arc(gx, gy, 2.7, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // 5. Lingkaran Polka-Dot Abu Gelap di Kanan Tengah
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(975, 515, 142, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = '#474b4f';
+      for (let gx = 825; gx <= 1125; gx += 16) {
+        for (let gy = 365; gy <= 665; gy += 16) {
+          ctx.beginPath();
+          ctx.arc(gx, gy, 3.3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+
+      // 6. Header Kiri: Logo + Dewan Pimpinan Daerah Wahdah Islamiyah Pasangkayu
+      if (cachedSafeLogoImage) {
+        ctx.drawImage(cachedSafeLogoImage, 124, 66, 78, 78);
+      } else {
+        drawWahdahVectorEmblem(ctx, 163, 105, 38);
+      }
+
+      ctx.fillStyle = '#0e859e';
+      ctx.font = '700 21px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('Dewan Pimpinan Daerah', 216, 100);
+      ctx.fillText('Wahdah Islamiyah Pasangkayu', 216, 126);
+
+      // 7. Header Kanan: Segitiga Emas + Departemen Dakwah dan Pengembangan Masjid
+      ctx.fillStyle = '#d49a2a';
+      ctx.beginPath();
+      ctx.moveTo(640, 86);
+      ctx.lineTo(655, 95);
+      ctx.lineTo(640, 105);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#3f4347';
+      ctx.font = '700 19px Inter, system-ui, sans-serif';
+      ctx.fillText('Departemen Dakwah dan', 668, 100);
+      ctx.fillText('Pengembangan Masjid', 668, 124);
+
+      // 8. Footer Media Sosial (Facebook, Twitter, Instagram, YouTube + Teks)
+      const cleanFooter = footerText || 'Wahdah Islamiyah Pasangkayu';
+      ctx.font = '600 22px Inter, system-ui, sans-serif';
+      const textWidth = ctx.measureText(cleanFooter).width;
+      const iconsBlockWidth = 148;
+      const totalFooterWidth = iconsBlockWidth + textWidth;
+      const startX = (size - totalFooterWidth) / 2;
+      const baseY = 1022;
+
+      ctx.fillStyle = '#138ea8';
+      ctx.strokeStyle = '#138ea8';
+
+      // Ikon 1: Facebook 'f'
+      ctx.font = '800 26px Inter, system-ui, sans-serif';
+      ctx.fillText('f', startX + 2, baseY + 8);
+
+      // Ikon 2: Twitter bird sederhana
+      const twX = startX + 34;
+      ctx.beginPath();
+      ctx.moveTo(twX, baseY + 4);
+      ctx.quadraticCurveTo(twX + 10, baseY + 7, twX + 18, baseY - 4);
+      ctx.quadraticCurveTo(twX + 14, baseY - 2, twX + 11, baseY - 5);
+      ctx.quadraticCurveTo(twX + 6, baseY - 8, twX + 4, baseY - 1);
+      ctx.quadraticCurveTo(twX - 2, baseY - 2, twX - 4, baseY - 5);
+      ctx.quadraticCurveTo(twX - 4, baseY + 1, twX, baseY + 4);
+      ctx.fill();
+
+      // Ikon 3: Instagram kamera kotak membulat
+      const igX = startX + 66;
+      ctx.lineWidth = 2.2;
+      drawCanvasRoundedRect(ctx, igX, baseY - 12, 24, 24, 6);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(igX + 12, baseY, 5.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(igX + 18.5, baseY - 6.5, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ikon 4: YouTube play rectangle
+      const ytX = startX + 102;
+      drawCanvasRoundedRect(ctx, ytX, baseY - 10, 28, 20, 5);
+      ctx.fill();
+      ctx.fillStyle = '#f6f7f9';
+      ctx.beginPath();
+      ctx.moveTo(ytX + 11, baseY - 5);
+      ctx.lineTo(ytX + 19, baseY);
+      ctx.lineTo(ytX + 11, baseY + 5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Teks Footer
+      ctx.fillStyle = '#138ea8';
+      ctx.font = '600 22px Inter, system-ui, sans-serif';
+      ctx.fillText(cleanFooter, startX + iconsBlockWidth, baseY + 7);
+    }
+
+    function renderKhutbahJpgCanvas() {
+      const canvas = document.getElementById('khutbah-jpg-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const size = 1080;
+
+      const posterTitle = (document.getElementById('jpg-poster-title')?.value || 'JADWAL KHUTBAH JUMAT').trim().toUpperCase();
+      const posterSubtitle = (document.getElementById('jpg-poster-subtitle')?.value || '').trim();
+      const showPengganti = Boolean(document.getElementById('jpg-show-pengganti')?.checked);
+      const showAlamat = Boolean(document.getElementById('jpg-show-alamat')?.checked);
+      const footerText = (document.getElementById('jpg-footer-text')?.value || 'Wahdah Islamiyah Pasangkayu').trim();
+
+      // Gambar Frame Persegi Dasar
+      drawSidakFrameTemplate(ctx, size, footerText);
+
+      const allItems = getKhutbahActiveItemsForPoster();
+      const totalSlides = Math.max(1, Math.ceil(allItems.length / JPG_ITEMS_PER_SLIDE));
+      if (khutbahJpgCurrentSlide >= totalSlides) khutbahJpgCurrentSlide = 0;
+
+      const startIdx = khutbahJpgCurrentSlide * JPG_ITEMS_PER_SLIDE;
+      const pageItems = allItems.slice(startIdx, startIdx + JPG_ITEMS_PER_SLIDE);
+
+      // Update UI pagination modal
+      const pagBox = document.getElementById('jpg-pagination-box');
+      const dlAllBtn = document.getElementById('btn-download-all-jpg-slides');
+      if (pagBox) {
+        if (totalSlides > 1) {
+          pagBox.classList.remove('hidden');
+          document.getElementById('jpg-page-indicator').textContent = `${khutbahJpgCurrentSlide + 1} / ${totalSlides}`;
+          document.getElementById('jpg-total-items-count').textContent = allItems.length;
+          dlAllBtn?.classList.remove('hidden');
+        } else {
+          pagBox.classList.add('hidden');
+          dlAllBtn?.classList.add('hidden');
+        }
+      }
+
+      // Banner Judul Utama Poster
+      const pillX = 210;
+      const pillY = 166;
+      const pillW = 660;
+      const pillH = 60;
+
+      ctx.save();
+      const pillGrad = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY + pillH);
+      pillGrad.addColorStop(0, '#0284c7');
+      pillGrad.addColorStop(0.55, '#0d9488');
+      pillGrad.addColorStop(1, '#059669');
+      ctx.fillStyle = pillGrad;
+      drawCanvasRoundedRect(ctx, pillX, pillY, pillW, pillH, 30);
+      ctx.fill();
+
+      // Aksen garis emas bawah pill judul
+      ctx.strokeStyle = '#dfa217';
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 28px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(posterTitle || 'JADWAL KHUTBAH JUMAT', size / 2, pillY + pillH / 2 + 1);
+      ctx.restore();
+
+      // Subjudul Tanggal & Info Slide
+      const slideSuffix = totalSlides > 1 ? `  •  Bagian ${khutbahJpgCurrentSlide + 1}/${totalSlides}` : '';
+      const fullSubtitle = (posterSubtitle || `Jumat, ${formatTanggalJumatId(CURRENT_WEEK_FRIDAY_ISO)}`) + slideSuffix;
+
+      ctx.save();
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '700 20px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(fullSubtitle, size / 2, 256);
+      ctx.restore();
+
+      // Area Tabel Jadwal Khutbah Jumat (y = 282 s.d. 958)
+      const tableX = 96;
+      const tableY = 282;
+      const tableW = 888;
+      const headerH = 48;
+
+      // Header Tabel
+      ctx.save();
+      const thGrad = ctx.createLinearGradient(tableX, tableY, tableX + tableW, tableY);
+      thGrad.addColorStop(0, '#0284c7');
+      thGrad.addColorStop(0.5, '#0d9488');
+      thGrad.addColorStop(1, '#10b981');
+      ctx.fillStyle = thGrad;
+      drawCanvasRoundedRect(ctx, tableX, tableY, tableW, headerH, 14);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 16px Inter, system-ui, sans-serif';
+      ctx.textBaseline = 'middle';
+
+      ctx.textAlign = 'center';
+      ctx.fillText('NO', tableX + 36, tableY + headerH / 2);
+
+      ctx.textAlign = 'left';
+      ctx.fillText('MASJID & WILAYAH DPC', tableX + 82, tableY + headerH / 2);
+      ctx.fillText('KHATIB JUMAT', tableX + 520, tableY + headerH / 2);
+      ctx.restore();
+
+      if (pageItems.length === 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+        drawCanvasRoundedRect(ctx, tableX, tableY + headerH + 12, tableW, 180, 18);
+        ctx.fill();
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '700 20px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Belum ada jadwal Khutbah Jumat pada pekan/filter ini.', size / 2, tableY + headerH + 92);
+        ctx.font = '500 16px Inter, system-ui, sans-serif';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('Tambahkan jadwal pada laman Khutbah Jumat terlebih dahulu.', size / 2, tableY + headerH + 124);
+        ctx.restore();
+        return;
+      }
+
+      const availableBodyH = 620;
+      const rowGap = 8;
+      const rawRowH = Math.floor((availableBodyH - (pageItems.length - 1) * rowGap) / Math.max(pageItems.length, 6));
+      const rowH = Math.max(70, Math.min(92, rawRowH));
+
+      pageItems.forEach((item, idx) => {
+        const globalNo = startIdx + idx + 1;
+        const ry = tableY + headerH + 10 + idx * (rowH + rowGap);
+
+        ctx.save();
+        ctx.fillStyle = idx % 2 === 0 ? 'rgba(255, 255, 255, 0.94)' : 'rgba(240, 249, 255, 0.94)';
+        drawCanvasRoundedRect(ctx, tableX, ry, tableW, rowH, 14);
+        ctx.fill();
+
+        ctx.strokeStyle = idx % 2 === 0 ? '#bae6fd' : '#a7f3d0';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+
+        // Nomor Urut
+        ctx.fillStyle = '#0e859e';
+        ctx.beginPath();
+        ctx.arc(tableX + 36, ry + rowH / 2, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 16px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(globalNo), tableX + 36, ry + rowH / 2 + 1);
+
+        // Kolom Masjid & Wilayah DPC
+        const colMasjidX = tableX + 82;
+        const colMasjidMaxW = 415;
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '800 18px Inter, system-ui, sans-serif';
+        const masjidLines = wrapCanvasText(ctx, item.nama_masjid || '-', colMasjidMaxW, 1);
+        ctx.fillText(masjidLines[0], colMasjidX, ry + 30);
+
+        // Pill DPC + Alamat opsional
+        const dpcText = item.wilayah_dpc || 'DPC Pasangkayu';
+        ctx.font = '700 13px Inter, system-ui, sans-serif';
+        const dpcBadgeW = Math.min(200, ctx.measureText(dpcText).width + 18);
+        ctx.fillStyle = '#d1fae5';
+        drawCanvasRoundedRect(ctx, colMasjidX, ry + 39, dpcBadgeW, 22, 7);
+        ctx.fill();
+
+        ctx.fillStyle = '#065f46';
+        ctx.fillText(dpcText, colMasjidX + 9, ry + 54);
+
+        if (showAlamat && item.alamat && item.alamat !== '-') {
+          ctx.fillStyle = '#475569';
+          ctx.font = '500 13px Inter, system-ui, sans-serif';
+          const addrLines = wrapCanvasText(ctx, item.alamat, colMasjidMaxW - dpcBadgeW - 10, 1);
+          ctx.fillText(addrLines[0], colMasjidX + dpcBadgeW + 8, ry + 54);
+        }
+
+        // Garis pemisah vertikal tipis
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(tableX + 506, ry + 12);
+        ctx.lineTo(tableX + 506, ry + rowH - 12);
+        ctx.stroke();
+
+        // Kolom Khatib Terjadwal & Pengganti
+        const colKhatibX = tableX + 520;
+        const colKhatibMaxW = 352;
+        const hasPengganti = showPengganti && Boolean(String(item.khatib_pengganti || '').trim());
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '800 18px Inter, system-ui, sans-serif';
+        const khatibLines = wrapCanvasText(ctx, item.khatib_utama || '-', colKhatibMaxW, hasPengganti ? 1 : 2);
+        if (khatibLines.length === 1) {
+          ctx.fillText(khatibLines[0], colKhatibX, hasPengganti ? ry + 31 : ry + rowH / 2 + 6);
+        } else {
+          ctx.fillText(khatibLines[0], colKhatibX, ry + 30);
+          ctx.fillText(khatibLines[1], colKhatibX, ry + 53);
+        }
+
+        if (hasPengganti) {
+          const badalLabel = `Pengganti: ${item.khatib_pengganti}`;
+          ctx.font = '700 13px Inter, system-ui, sans-serif';
+          const badalText = wrapCanvasText(ctx, badalLabel, colKhatibMaxW - 16, 1)[0];
+          const badalW = Math.min(colKhatibMaxW, ctx.measureText(badalText).width + 16);
+
+          ctx.fillStyle = '#fef3c7';
+          drawCanvasRoundedRect(ctx, colKhatibX, ry + 39, badalW, 22, 7);
+          ctx.fill();
+
+          ctx.fillStyle = '#92400e';
+          ctx.fillText(badalText, colKhatibX + 8, ry + 54);
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function downloadKhutbahJpgCurrentSlide() {
+      const canvas = document.getElementById('khutbah-jpg-canvas');
+      if (!canvas) return;
+      renderKhutbahJpgCanvas();
+
+      const targetFridays = getActiveKhutbahTargetFridays();
+      const dateSlug = selectedKhutbahWeeks[0] || targetFridays[0] || CURRENT_WEEK_FRIDAY_ISO;
+      const allItems = getKhutbahActiveItemsForPoster();
+      const totalSlides = Math.max(1, Math.ceil(allItems.length / JPG_ITEMS_PER_SLIDE));
+      const slideSlug = totalSlides > 1 ? `_Slide_${khutbahJpgCurrentSlide + 1}` : '';
+
+      try {
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `SIDAK_Jadwal_Khutbah_Jumat_${dateSlug}${slideSlug}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Poster JPG persegi (1080x1080) berhasil diunduh.', 'success');
+      } catch (err) {
+        showToast(`Gagal mengekspor JPG: ${err.message}`, 'error');
+      }
+    }
+
+    function downloadAllKhutbahJpgSlides() {
+      const allItems = getKhutbahActiveItemsForPoster();
+      const totalSlides = Math.max(1, Math.ceil(allItems.length / JPG_ITEMS_PER_SLIDE));
+      const originalSlide = khutbahJpgCurrentSlide;
+
+      for (let s = 0; s < totalSlides; s++) {
+        khutbahJpgCurrentSlide = s;
+        downloadKhutbahJpgCurrentSlide();
+      }
+      khutbahJpgCurrentSlide = originalSlide;
+      renderKhutbahJpgCanvas();
     }
 
     // =========================================================================
